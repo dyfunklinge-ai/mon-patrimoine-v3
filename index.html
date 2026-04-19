@@ -1,1 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>◈ PATRIMOINE — Dark Portfolio Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #08090d; --bg2: #0d1017; --bg3: #12161f; --bg4: #181d28;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --cyan: #00e5ff; --violet: #7c3aed; --green: #10b981; --amber: #f59e0b; --red: #ef4444;
+  --text: #e2e8f0; --muted: #5a6a85; --muted2: #8899aa;
+  --briks: #fb923c; --pbrique: #a78bfa; --ibkr: #38bdf8; --binance: #fbbf24; --secours: #34d399; --fond: #f472b6;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.5; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 24px 60px; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; flex-wrap: wrap; }
+.logo-mark { font-size: 28px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #fff 30%, var(--cyan) 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo-mark span { color: var(--cyan); -webkit-text-fill-color: var(--cyan); }
+.logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.live-badge { display: flex; align-items: center; gap: 8px; background: var(--bg3); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border); font-size: 11px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px rgba(16,185,129,0.3); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.5; } }
+.tabs-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.tab-btn { display: flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 40px; background: transparent; border: none; color: var(--muted2); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.tab-btn:hover { color: var(--text); background: var(--bg3); }
+.tab-btn.active { background: var(--tab-color, var(--cyan)); color: #000; box-shadow: 0 4px 12px rgba(0,229,255,0.25); }
+.tab-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.section { display: none; animation: fadeIn 0.25s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--bg3); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
+.stat-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent-top, var(--cyan)); }
+.stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 10px; }
+.stat-val { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.stat-sub { font-size: 11px; margin-top: 6px; color: var(--muted2); }
+.hero { background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(124,58,237,0.07)); border: 1px solid rgba(0,229,255,0.12); border-radius: 28px; padding: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px; }
+.hero-total { font-size: 52px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(120deg, #fff, var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+input, select { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; color: var(--text); font-size: 13px; font-family: inherit; outline: none; transition: all 0.2s; }
+input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,229,255,0.15); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border-radius: 40px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; background: var(--bg4); color: var(--text); }
+.btn-primary { background: var(--cyan); color: #000; box-shadow: 0 2px 8px rgba(0,229,255,0.3); }
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.btn-icon { padding: 5px 12px; border-radius: 30px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+.btn-edit { color: var(--cyan); border-color: rgba(0,229,255,0.3); }
+.btn-del { color: var(--red); border-color: rgba(239,68,68,0.3); }
+.tbl-wrap { overflow-x: auto; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 40px; font-size: 10px; font-weight: 800; background: rgba(0,229,255,0.12); color: var(--cyan); }
+.c-green { color: var(--green); } .c-red { color: var(--red); } .c-cyan { color: var(--cyan); }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-bg.open { display: flex; }
+.modal-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 32px; padding: 28px; width: 500px; max-width: 94vw; }
+.empty { text-align: center; padding: 48px; color: var(--muted); }
+@media (max-width: 768px) { .hero { grid-template-columns: 1fr; } .stat-val { font-size: 22px; } .hero-total { font-size: 36px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div><div class="logo-mark">◈ PATRI<span>MOINE</span></div><div class="logo-sub">suivi intelligent — dark mode</div></div>
+    <div class="live-badge"><div class="live-dot"></div><span id="timestamp">prêt</span></div>
+  </div>
 
+  <div class="tabs-bar">
+    <button class="tab-btn active" style="--tab-color:var(--cyan)" onclick="switchTab('overview')"><span class="tab-dot"></span>Vue globale</button>
+    <button class="tab-btn" style="--tab-color:var(--briks)" onclick="switchTab('briks')"><span class="tab-dot"></span>Briks</button>
+    <button class="tab-btn" style="--tab-color:var(--pbrique)" onclick="switchTab('pbrique')"><span class="tab-dot"></span>Première Brique</button>
+    <button class="tab-btn" style="--tab-color:var(--ibkr)" onclick="switchTab('ibkr')"><span class="tab-dot"></span>IBKR</button>
+    <button class="tab-btn" style="--tab-color:var(--binance)" onclick="switchTab('binance')"><span class="tab-dot"></span>Binance</button>
+    <button class="tab-btn" style="--tab-color:var(--secours)" onclick="switchTab('secours')"><span class="tab-dot"></span>Épargne secours</button>
+    <button class="tab-btn" style="--tab-color:var(--fond)" onclick="switchTab('fond')"><span class="tab-dot"></span>Fond secours</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="overview" class="section active">
+    <div class="hero"><div><div class="stat-label">PATRIMOINE TOTAL</div><div class="hero-total" id="totalValue">0 €</div><div class="stat-sub" id="totalGain"></div></div><div id="breakdownList" class="pb-list"></div></div>
+    <div class="stat-grid" id="statsGrid"></div>
+    <div class="card"><div class="stat-label">📈 Projection 20 & 30 ans</div><div class="stat-grid"><div class="stat-card" style="--accent-top:var(--cyan)"><div class="stat-label">20 ANS</div><div class="stat-val" id="proj20">0 €</div></div><div class="stat-card" style="--accent-top:var(--violet)"><div class="stat-label">30 ANS</div><div class="stat-val" id="proj30">0 €</div></div></div><div class="field"><label>Taux de rendement annuel (%)</label><input type="number" id="returnRate" value="7" step="0.5" onchange="updateProjections()"></div></div>
+    <div class="card"><div class="stat-label">📋 Toutes les positions</div><div class="tbl-wrap"></table><thead><tr><th>Nom</th><th>Plateforme</th><th>Investi</th><th>Valeur</th><th>Gain</th><th>%</th><th></th></tr></thead><tbody id="allPositions"></tbody></table></div></div>
+    <div class="card"><div class="stat-label">📅 Historique manuel</div><div style="display:flex; gap:12px; flex-wrap:wrap;"><input type="date" id="historyDate"><input type="number" id="historyValue" placeholder="Valeur totale €"><button class="btn btn-primary" onclick="addHistoryPoint()">+ Ajouter point</button></div><div id="historyLog" style="margin-top:16px;"></div></div>
+  </div>
+
+  <!-- BRIKS -->
+  <div id="briks" class="section"><div class="card"><div class="stat-label">🧱 BRIKS — Liquidités</div><div class="field"><label>Cash disponible (€)</label><input type="number" id="briksLiquidity" step="any" onchange="updateLiquidity('briks')"></div></div><div class="card"><div class="stat-label">Ajouter un projet</div><div class="form-grid"><input type="text" id="briksName" placeholder="Nom du projet"><input type="number" id="briksInvest" placeholder="Montant investi €"><input type="number" id="briksRate" placeholder="Rendement annuel %"><input type="number" id="briksReceived" placeholder="Revenus reçus €"></div><button class="btn btn-primary" onclick="addItem('briks')">+ Ajouter projet</button></div><div class="tbl-wrap"><table><thead><tr><th>Projet</th><th>Investi</th><th>Rendement</th><th>Revenus reçus</th><th>Gain réel</th><th></th></tr></thead><tbody id="briksList"></tbody></table></div></div>
+
+  <!-- PREMIERE BRIQUE -->
+  <div id="pbrique" class="section"><div class="card"><div class="stat-label">🏗️ PREMIÈRE BRIQUE — Liquidités</div><div class="field"><label>Cash disponible (€)</label><input type="number" id="pbriqueLiquidity" step="any" onchange="updateLiquidity('pbrique')"></div></div><div class="card"><div class="stat-label">Ajouter un projet</div><div class="form-grid"><input type="text" id="pbriqueName" placeholder="Nom"><input type="number" id="pbriqueInvest" placeholder="Investi €"><input type="number" id="pbriqueRate" placeholder="Taux %"><input type="number" id="pbriqueReceived" placeholder="Revenus reçus"></div><button class="btn btn-primary" onclick="addItem('pbrique')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Projet</th><th>Investi</th><th>Taux</th><th>Revenus</th><th>Gain</th><th></th></tr></thead><tbody id="pbriqueList"></tbody></table></div></div>
+
+  <!-- IBKR -->
+  <div id="ibkr" class="section"><div class="card"><div class="stat-label">📈 IBKR — Liquidités</div><div class="field"><label>Cash disponible (€)</label><input type="number" id="ibkrLiquidity" step="any" onchange="updateLiquidity('ibkr')"></div></div><div class="card"><div class="stat-label">Ajouter une position</div><div class="form-grid"><input type="text" id="ibkrTicker" placeholder="Ticker (AAPL, VOO...)"><input type="number" id="ibkrQty" placeholder="Quantité"><input type="number" id="ibkrEntry" placeholder="Prix entrée €"><input type="number" id="ibkrCurrent" placeholder="Prix actuel €"></div><button class="btn btn-primary" onclick="addItem('ibkr')">+ Ajouter position</button></div><div class="tbl-wrap"><table><thead><tr><th>Ticker</th><th>Qté</th><th>Entrée</th><th>Actuel</th><th>Valeur</th><th>Gain</th><th></th></tr></thead><tbody id="ibkrList"></tbody></table></div></div>
+
+  <!-- BINANCE -->
+  <div id="binance" class="section"><div class="card"><div class="stat-label">🔶 BINANCE — Liquidités</div><div class="field"><label>Cash disponible (USDT/$)</label><input type="number" id="binanceLiquidity" step="any" onchange="updateLiquidity('binance')"></div></div><div class="card"><div class="stat-label">Ajouter une crypto</div><div class="form-grid"><input type="text" id="binanceSymbol" placeholder="BTC, ETH..."><input type="number" id="binanceQty" placeholder="Quantité"><input type="number" id="binanceEntry" placeholder="Prix entrée $"><input type="number" id="binanceCurrent" placeholder="Prix actuel $"></div><button class="btn btn-primary" onclick="addItem('binance')">+ Ajouter crypto</button></div><div class="tbl-wrap"><table><thead><tr><th>Crypto</th><th>Qté</th><th>Entrée</th><th>Actuel</th><th>Valeur</th><th>Gain</th><th></th></tr></thead><tbody id="binanceList"></tbody></table></div></div>
+
+  <!-- EPARGNE SECOURS -->
+  <div id="secours" class="section"><div class="card"><div class="stat-label">🏦 ÉPARGNE DE SECOURS</div><div class="field"><label>Objectif (€)</label><input type="number" id="secoursGoal" onchange="updateGoal('secours')"></div></div><div class="card"><div class="stat-label">Ajouter un compte</div><div class="form-grid"><input type="text" id="secoursName" placeholder="Nom du compte"><input type="number" id="secoursBalance" placeholder="Solde €"><input type="number" id="secoursInterest" placeholder="Intérêts reçus €"></div><button class="btn btn-primary" onclick="addItem('secours')">+ Ajouter compte</button></div><div class="tbl-wrap"><table><thead><tr><th>Compte</th><th>Solde</th><th>Intérêts</th><th>Total</th><th></th></tr></thead><tbody id="secoursList"></tbody></table></div></div>
+
+  <!-- FOND SECOURS -->
+  <div id="fond" class="section"><div class="card"><div class="stat-label">🛡️ FOND DE SECOURS</div><div class="field"><label>Objectif (€)</label><input type="number" id="fondGoal" onchange="updateGoal('fond')"></div></div><div class="card"><div class="stat-label">Ajouter un poste</div><div class="form-grid"><input type="text" id="fondName" placeholder="Description"><input type="number" id="fondAmount" placeholder="Montant €"><input type="number" id="fondInterest" placeholder="Intérêts reçus"></div><button class="btn btn-primary" onclick="addItem('fond')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Poste</th><th>Montant</th><th>Intérêts</th><th>Total</th><th></th></tr></thead><tbody id="fondList"></tbody></table></div></div>
+
+  <!-- EXPORT/IMPORT -->
+  <div style="margin-top: 48px; border-top: 1px solid var(--border); padding: 32px 0; text-align: center; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+    <button class="btn btn-primary" onclick="exportData()">💾 Exporter (JSON)</button>
+    <label class="btn" style="background: rgba(0,229,255,0.1); border: 1px solid var(--cyan); cursor: pointer;">📂 Importer JSON<input type="file" accept=".json" onchange="importData(event)" style="display: none;"></label>
+  </div>
+  <div style="text-align: center; font-size: 11px; color: var(--muted); margin-top: 16px;" id="quote">✨ La liberté financière commence par un seul pas</div>
+</div>
+
+<div class="modal-bg" id="editModal"><div class="modal-box"><div class="stat-label" style="margin-bottom: 16px;">Modifier</div><div id="editForm"></div><div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;"><button class="btn" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Enregistrer</button></div></div></div>
+
+<script>
+// ======================== STORE ========================
+const STORAGE_KEY = 'patrimoine_final_v2';
+let store = {
+  briks: [], pbrique: [], ibkr: [], binance: [], secours: [], fond: [],
+  liquidity: { briks: 0, pbrique: 0, ibkr: 0, binance: 0 },
+  goals: { secours: 0, fond: 0 },
+  history: [],
+  returnRate: 7
+};
+let editContext = null;
+
+function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); document.getElementById('timestamp').innerText = new Date().toLocaleTimeString(); }
+function loadFromLocal() { try { let d = localStorage.getItem(STORAGE_KEY); if(d) store = { ...store, ...JSON.parse(d) }; } catch(e){} }
+
+// ======================== HELPERS ========================
+function formatMoney(v, unit = '€') { return (parseFloat(v) || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + unit; }
+function gainClass(v) { return v >= 0 ? 'c-green' : 'c-red'; }
+function sign(v) { return v >= 0 ? '+' : ''; }
+
+// Calcul valeur par plateforme
+function computePlatform(platform) {
+  let invested = 0, current = 0;
+  store[platform].forEach(item => {
+    if (platform === 'briks' || platform === 'pbrique') {
+      let inv = parseFloat(item.invest) || 0, rec = parseFloat(item.received) || 0;
+      invested += inv; current += inv + rec;
+    } else if (platform === 'ibkr' || platform === 'binance') {
+      let qty = parseFloat(item.qty) || 0, entry = parseFloat(item.entry) || 0, curr = parseFloat(item.current) || 0;
+      invested += qty * entry; current += qty * curr;
+    } else if (platform === 'secours' || platform === 'fond') {
+      let bal = parseFloat(item.balance) || 0, intr = parseFloat(item.interest) || 0;
+      invested += bal; current += bal + intr;
+    }
+  });
+  return { invested, current, gain: current - invested };
+}
+
+function getTotalLiquidity() { return (store.liquidity.briks + store.liquidity.pbrique + store.liquidity.ibkr + store.liquidity.binance); }
+
+// ======================== RENDER OVERVIEW ========================
+function renderOverview() {
+  let platforms = ['briks', 'pbrique', 'ibkr', 'binance', 'secours', 'fond'];
+  let totals = { invested: 0, current: 0 };
+  let breakdown = [];
+  platforms.forEach(p => {
+    let res = computePlatform(p);
+    totals.invested += res.invested;
+    totals.current += res.current;
+    breakdown.push({ name: p.toUpperCase(), value: res.current, gain: res.gain, invested: res.invested });
+  });
+  let totalGain = totals.current - totals.invested;
+  let gainPercent = totals.invested ? (totalGain / totals.invested * 100) : 0;
+  document.getElementById('totalValue').innerHTML = formatMoney(totals.current);
+  document.getElementById('totalGain').innerHTML = `<span class="${gainClass(totalGain)}">${sign(totalGain)}${formatMoney(totalGain)} (${sign(gainPercent)}${gainPercent.toFixed(2)}%)</span>`;
+  
+  // stats grid
+  let liq = getTotalLiquidity();
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card" style="--accent-top:var(--green)"><div class="stat-label">Gain total</div><div class="stat-val ${gainClass(totalGain)}">${sign(totalGain)}${formatMoney(totalGain)}</div></div>
+    <div class="stat-card" style="--accent-top:var(--cyan)"><div class="stat-label">Capital investi</div><div class="stat-val">${formatMoney(totals.invested)}</div></div>
+    <div class="stat-card" style="--accent-top:#34d399"><div class="stat-label">Liquidités dispo</div><div class="stat-val">${formatMoney(liq)}</div></div>
+    <div class="stat-card" style="--accent-top:var(--violet)"><div class="stat-label">Patrimoine net</div><div class="stat-val">${formatMoney(totals.current + liq)}</div></div>`;
+  
+  // breakdown bars
+  document.getElementById('breakdownList').innerHTML = breakdown.map(b => `<div class="pb-row" style="display:grid; grid-template-columns:100px 1fr 60px; gap:12px; align-items:center;"><div style="font-weight:700;color:var(--cyan)">${b.name}</div><div class="pb-track" style="height:6px;background:var(--bg2);border-radius:10px;"><div style="width:${totals.current ? (b.value/totals.current*100) : 0}%; height:100%; background:var(--cyan); border-radius:10px;"></div></div><div class="pb-pct">${((b.value/totals.current)*100).toFixed(0)}%</div></div>`).join('');
+  
+  // all positions table
+  let allRows = [];
+  platforms.forEach(p => {
+    store[p].forEach((item, idx) => {
+      let name = '', invested = 0, current = 0;
+      if (p === 'briks' || p === 'pbrique') { name = item.name; invested = parseFloat(item.invest); current = invested + (parseFloat(item.received) || 0); }
+      else if (p === 'ibkr' || p === 'binance') { name = item.ticker || item.symbol; let qty = parseFloat(item.qty); invested = qty * (parseFloat(item.entry)||0); current = qty * (parseFloat(item.current)||0); }
+      else { name = item.name; invested = parseFloat(item.balance || item.amount); current = invested + (parseFloat(item.interest)||0); }
+      let gain = current - invested;
+      let pct = invested ? (gain/invested*100) : 0;
+      allRows.push(`<tr><td>${name}</td><td><span class="tag">${p}</span></td><td>${formatMoney(invested)}</td><td>${formatMoney(current)}</td><td class="${gainClass(gain)}">${sign(gain)}${formatMoney(gain)}</td><td class="${gainClass(pct)}">${sign(pct)}${pct.toFixed(1)}%</td><td><button class="btn-icon btn-edit" onclick="openEdit('${p}',${idx})">✏️</button> <button class="btn-icon btn-del" onclick="deleteItem('${p}',${idx})">🗑</button></td></tr>`);
+    });
+  });
+  document.getElementById('allPositions').innerHTML = allRows.length ? allRows.join('') : '<tr><td colspan="7"><div class="empty">Aucune donnée — ajoutez des actifs dans les onglets</div></td></tr>';
+  
+  updateProjections();
+  renderHistoryLog();
+}
+
+function updateProjections() {
+  let rate = parseFloat(document.getElementById('returnRate').value) || 7;
+  store.returnRate = rate;
+  saveToLocal();
+  let platforms = ['briks', 'pbrique', 'ibkr', 'binance', 'secours', 'fond'];
+  let totalCurrent = platforms.reduce((sum, p) => sum + computePlatform(p).current, 0);
+  let ar = rate / 100;
+  document.getElementById('proj20').innerHTML = formatMoney(totalCurrent * Math.pow(1 + ar, 20));
+  document.getElementById('proj30').innerHTML = formatMoney(totalCurrent * Math.pow(1 + ar, 30));
+}
+
+// ======================== RENDER PLATFORM LISTS ========================
+function renderPlatform(platform) {
+  let tbody = document.getElementById(`${platform}List`);
+  if (!tbody) return;
+  let items = store[platform];
+  if (platform === 'briks' || platform === 'pbrique') {
+    tbody.innerHTML = items.map((item, i) => {
+      let inv = parseFloat(item.invest) || 0, rec = parseFloat(item.received) || 0;
+      let gain = rec;
+      return `<tr><td>${item.name}</td><td>${formatMoney(inv)}</td><td>${item.rate || 0}%</td><td>${formatMoney(rec)}</td><td class="${gainClass(gain)}">${sign(gain)}${formatMoney(gain)}</td><td><button class="btn-icon btn-edit" onclick="openEdit('${platform}',${i})">✏️</button> <button class="btn-icon btn-del" onclick="deleteItem('${platform}',${i})">🗑</button></td></tr>`;
+    }).join('') || '<tr><td colspan="6"><div class="empty">Aucun projet</div></td></tr>';
+  } else if (platform === 'ibkr' || platform === 'binance') {
+    let isEur = platform === 'ibkr';
+    tbody.innerHTML = items.map((item, i) => {
+      let qty = parseFloat(item.qty) || 0, entry = parseFloat(item.entry) || 0, curr = parseFloat(item.current) || 0;
+      let value = qty * curr, gain = value - (qty * entry);
+      let pct = (qty*entry) ? (gain/(qty*entry)*100) : 0;
+      return `<tr><td>${item.ticker || item.symbol}</td><td>${qty}</td><td>${formatMoney(entry, isEur ? '€' : '$')}</td><td>${formatMoney(curr, isEur ? '€' : '$')}</td><td>${formatMoney(value, isEur ? '€' : '$')}</td><td class="${gainClass(gain)}">${sign(gain)}${formatMoney(gain, isEur ? '€' : '$')} (${sign(pct)}${pct.toFixed(1)}%)</td><td><button class="btn-icon btn-edit" onclick="openEdit('${platform}',${i})">✏️</button> <button class="btn-icon btn-del" onclick="deleteItem('${platform}',${i})">🗑</button></td></tr>`;
+    }).join('') || '<tr><td colspan="7"><div class="empty">Aucune position</div></td></tr>';
+  } else if (platform === 'secours' || platform === 'fond') {
+    tbody.innerHTML = items.map((item, i) => {
+      let bal = parseFloat(item.balance || item.amount) || 0, intr = parseFloat(item.interest) || 0;
+      return `<tr><td>${item.name}</td><td>${formatMoney(bal)}</td><td>${formatMoney(intr)}</td><td>${formatMoney(bal + intr)}</td><td><button class="btn-icon btn-edit" onclick="openEdit('${platform}',${i})">✏️</button> <button class="btn-icon btn-del" onclick="deleteItem('${platform}',${i})">🗑</button></td></tr>`;
+    }).join('') || '<tr><td colspan="5"><div class="empty">Aucun élément</div></td></tr>';
+  }
+  // mettre à jour les liquidités affichées
+  if (store.liquidity[platform] !== undefined) {
+    let liqInput = document.getElementById(`${platform}Liquidity`);
+    if (liqInput) liqInput.value = store.liquidity[platform];
+  }
+  let goalInput = document.getElementById(`${platform}Goal`);
+  if (goalInput && store.goals[platform] !== undefined) goalInput.value = store.goals[platform];
+}
+
+// ======================== CRUD ========================
+function addItem(platform) {
+  if (platform === 'briks') {
+    let name = document.getElementById('briksName').value;
+    if (!name) { alert("Nom requis"); return; }
+    store.briks.push({ name, invest: document.getElementById('briksInvest').value, rate: document.getElementById('briksRate').value, received: document.getElementById('briksReceived').value });
+    ['briksName','briksInvest','briksRate','briksReceived'].forEach(id => document.getElementById(id).value = '');
+  } else if (platform === 'pbrique') {
+    let name = document.getElementById('pbriqueName').value;
+    if (!name) return alert("Nom requis");
+    store.pbrique.push({ name, invest: document.getElementById('pbriqueInvest').value, rate: document.getElementById('pbriqueRate').value, received: document.getElementById('pbriqueReceived').value });
+    ['pbriqueName','pbriqueInvest','pbriqueRate','pbriqueReceived'].forEach(id => document.getElementById(id).value = '');
+  } else if (platform === 'ibkr') {
+    let ticker = document.getElementById('ibkrTicker').value;
+    if (!ticker) return alert("Ticker requis");
+    store.ibkr.push({ ticker, qty: document.getElementById('ibkrQty').value, entry: document.getElementById('ibkrEntry').value, current: document.getElementById('ibkrCurrent').value });
+    ['ibkrTicker','ibkrQty','ibkrEntry','ibkrCurrent'].forEach(id => document.getElementById(id).value = '');
+  } else if (platform === 'binance') {
+    let symbol = document.getElementById('binanceSymbol').value;
+    if (!symbol) return alert("Symbole requis");
+    store.binance.push({ symbol, qty: document.getElementById('binanceQty').value, entry: document.getElementById('binanceEntry').value, current: document.getElementById('binanceCurrent').value });
+    ['binanceSymbol','binanceQty','binanceEntry','binanceCurrent'].forEach(id => document.getElementById(id).value = '');
+  } else if (platform === 'secours') {
+    let name = document.getElementById('secoursName').value;
+    if (!name) return alert("Nom du compte requis");
+    store.secours.push({ name, balance: document.getElementById('secoursBalance').value, interest: document.getElementById('secoursInterest').value });
+    ['secoursName','secoursBalance','secoursInterest'].forEach(id => document.getElementById(id).value = '');
+  } else if (platform === 'fond') {
+    let name = document.getElementById('fondName').value;
+    if (!name) return alert("Description requise");
+    store.fond.push({ name, amount: document.getElementById('fondAmount').value, interest: document.getElementById('fondInterest').value });
+    ['fondName','fondAmount','fondInterest'].forEach(id => document.getElementById(id).value = '');
+  }
+  saveToLocal();
+  renderOverview();
+  renderPlatform(platform);
+}
+
+function deleteItem(platform, idx) {
+  if (confirm("Supprimer définitivement ?")) {
+    store[platform].splice(idx, 1);
+    saveToLocal();
+    renderOverview();
+    renderPlatform(platform);
+  }
+}
+
+function updateLiquidity(platform) {
+  let input = document.getElementById(`${platform}Liquidity`);
+  store.liquidity[platform] = parseFloat(input.value) || 0;
+  saveToLocal();
+  renderOverview();
+}
+
+function updateGoal(type) {
+  let input = document.getElementById(`${type}Goal`);
+  store.goals[type] = parseFloat(input.value) || 0;
+  saveToLocal();
+}
+
+function addHistoryPoint() {
+  let date = document.getElementById('historyDate').value;
+  let value = parseFloat(document.getElementById('historyValue').value);
+  if (!date || isNaN(value)) { alert("Date et valeur requises"); return; }
+  store.history.push({ date, value });
+  saveToLocal();
+  renderOverview();
+  document.getElementById('historyValue').value = '';
+}
+
+function renderHistoryLog() {
+  let container = document.getElementById('historyLog');
+  if (!store.history.length) { container.innerHTML = '<div class="empty">Aucun historique</div>'; return; }
+  container.innerHTML = store.history.slice().reverse().map(h => `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);"><span>${h.date}</span><span>${formatMoney(h.value)}</span></div>`).join('');
+}
+
+// ======================== EDIT MODAL ========================
+function openEdit(platform, idx) {
+  editContext = { platform, idx };
+  let item = store[platform][idx];
+  let fields = Object.keys(item);
+  let html = '<div class="form-grid">';
+  fields.forEach(k => { html += `<div class="field"><label>${k}</label><input id="edit_${k}" value="${item[k] || ''}"></div>`; });
+  html += '</div>';
+  document.getElementById('editForm').innerHTML = html;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal() { document.getElementById('editModal').classList.remove('open'); editContext = null; }
+function saveEdit() {
+  if (!editContext) return;
+  let { platform, idx } = editContext;
+  let item = store[platform][idx];
+  Object.keys(item).forEach(k => {
+    let input = document.getElementById(`edit_${k}`);
+    if (input) item[k] = input.value;
+  });
+  saveToLocal();
+  renderOverview();
+  renderPlatform(platform);
+  closeModal();
+}
+
+// ======================== EXPORT / IMPORT ========================
+function exportData() {
+  let blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `patrimoine_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(event) {
+  let file = event.target.files[0];
+  if (!file) return;
+  let reader = new FileReader();
+  reader.onload = e => {
+    try {
+      let imported = JSON.parse(e.target.result);
+      store = { ...store, ...imported };
+      saveToLocal();
+      renderOverview();
+      ['briks','pbrique','ibkr','binance','secours','fond'].forEach(p => renderPlatform(p));
+      alert("✅ Import réussi");
+    } catch(err) { alert("Fichier invalide"); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if (tabId !== 'overview') renderPlatform(tabId);
+  else renderOverview();
+}
+
+// ======================== INIT ========================
+loadFromLocal();
+document.getElementById('returnRate').value = store.returnRate;
+renderOverview();
+['briks','pbrique','ibkr','binance','secours','fond'].forEach(p => renderPlatform(p));
+setInterval(() => saveToLocal(), 30000);
+document.getElementById('historyDate').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
