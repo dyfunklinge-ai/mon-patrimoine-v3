@@ -596,7 +596,14 @@ let S = { briks:[], pbrique:[], ibkr:[], binance:[], secours:[], fond:[], secour
 let CH_MAP = {};
 let editCtx = { pid:null, idx:null };
 
-function load() { try { const d=localStorage.getItem(KEY); if(d) S={...S,...JSON.parse(d)}; } catch(e){} }
+  function load() { 
+  // Code de synchronisation
+  if(!localStorage.getItem('mon-patrimoine-v3')) {
+     const ancien = localStorage.getItem('mon-patrimoine') || localStorage.getItem('S');
+     if(ancien) localStorage.setItem('mon-patrimoine-v3', ancien);
+  }
+  try { const d=localStorage.getItem('mon-patrimoine-v3');
+
 function save() {
   localStorage.setItem(KEY, JSON.stringify(S));
   document.getElementById('ts').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
