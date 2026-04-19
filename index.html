@@ -1,1 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>◈ PATRIMOINE — Suivi de portefeuille ultime</title>
+<!-- Chart.js CDN valide et sécurisé -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ---------------------------------------------
+   DARK MODE DESIGN SYSTEM
+--------------------------------------------- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+:root {
+  --bg:      #08090d;
+  --bg2:     #0d1017;
+  --bg3:     #12161f;
+  --bg4:     #181d28;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --cyan:    #00e5ff;
+  --violet:  #7c3aed;
+  --green:   #10b981;
+  --amber:   #f59e0b;
+  --red:     #ef4444;
+  --text:    #e2e8f0;
+  --muted:   #5a6a85;
+  --muted2:  #8899aa;
+  --briks:   #fb923c;
+  --pbrique: #a78bfa;
+  --ibkr:    #38bdf8;
+  --binance: #fbbf24;
+  --secours: #34d399;
+  --fond:    #f472b6;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 450;
+}
+
+/* fond subtil style grid */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,229,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 28px 70px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.logo-mark { font-size: 28px; font-weight: 900; letter-spacing: -1.5px; background: linear-gradient(135deg, #fff 30%, var(--cyan) 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo-mark span { background: none; -webkit-text-fill-color: var(--cyan); color: var(--cyan); }
+.logo-sub  { font-size: 11px; color: var(--muted); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 5px; }
+.live-badge { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted2); background: var(--bg3); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border); backdrop-filter: blur(2px); }
+.live-dot  { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px rgba(16,185,129,0.3); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.5; } }
+
+/* TABS MODERN */
+.tabs-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 40px;
+  background: transparent;
+  border: none;
+  color: var(--muted2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  font-family: inherit;
+}
+.tab-btn:hover { color: var(--text); background: var(--bg3); }
+.tab-btn.active {
+  background: var(--tab-color, var(--cyan));
+  color: #000;
+  box-shadow: 0 6px 14px rgba(0,229,255,0.2);
+}
+.tab-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+
+/* SECTIONS */
+.section { display: none; animation: fade 0.25s ease; }
+.section.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  transition: all 0.2s;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, border-color 0.2s;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-top, var(--cyan));
+  border-radius: 20px 20px 0 0;
+}
+.stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; }
+.stat-val   { font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1.2; }
+.stat-sub   { font-size: 12px; margin-top: 8px; color: var(--muted2); }
+
+/* color helpers */
+.c-cyan   { color: var(--cyan);   } .c-green { color: var(--green); }
+.c-amber  { color: var(--amber);  } .c-red   { color: var(--red);   }
+.c-violet { color: var(--violet); } .c-muted { color: var(--muted2);}
+
+/* hero + bars */
+.hero {
+  background: linear-gradient(135deg, rgba(0,229,255,0.07) 0%, rgba(124,58,237,0.07) 100%);
+  border: 1px solid rgba(0,229,255,0.15);
+  border-radius: 28px;
+  padding: 32px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.hero-total { font-size: 52px; font-weight: 900; letter-spacing: -2.5px; background: linear-gradient(120deg,#fff 20%,var(--cyan) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.pb-list { display: flex; flex-direction: column; gap: 14px; }
+.pb-row  { display: grid; grid-template-columns: 100px 1fr 55px 70px; gap: 12px; align-items: center; }
+.pb-name { font-size: 13px; font-weight: 700; }
+.pb-track{ height: 6px; background: var(--bg2); border-radius: 10px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.2,0.9,0.4,1.1); }
+.pb-pct  { font-size: 12px; font-weight: 600; color: var(--muted2); text-align: right; }
+.pb-perf { font-size: 12px; font-weight: 700; text-align: right; }
+
+/* forms + inputs */
+.form-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+input, select {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,229,255,0.2); }
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: var(--bg4);
+  color: var(--text);
+}
+.btn-primary { background: var(--cyan); color: #000; box-shadow: 0 2px 6px rgba(0,229,255,0.3); }
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.btn-icon { padding: 5px 12px; border-radius: 30px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+.btn-edit { color: var(--cyan); border-color: rgba(0,229,255,0.3); }
+.btn-del  { color: var(--red); border-color: rgba(239,68,68,0.3); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 40px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; background: rgba(0,229,255,0.12); color: var(--cyan); }
+
+/* modals */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-bg.open { display: flex; }
+.modal-box {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 32px;
+  padding: 32px;
+  width: 550px;
+  max-width: 94vw;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .wrap { padding: 0 20px 40px; }
+  .hero { grid-template-columns: 1fr; gap: 20px; padding: 28px; }
+  .stat-val { font-size: 24px; }
+  .hero-total { font-size: 38px; }
+}
+@media (max-width: 640px) {
+  .pb-row { grid-template-columns: 80px 1fr 45px; }
+  .pb-perf { display: none; }
+  .tabs-bar { gap: 5px; }
+  .tab-btn { padding: 5px 12px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div><div class="logo-mark">◈ PATRI<span>MOINE</span></div><div class="logo-sub">vision globale — intérêts composés</div></div>
+    <div class="live-badge"><div class="live-dot"></div><span id="ts">synchronisé</span></div>
+  </div>
+  
+  <div class="tabs-bar" id="tabBar">
+    <button class="tab-btn active" style="--tab-color:var(--cyan)" onclick="go('overview')"><span class="tab-dot"></span>Vue d'ensemble</button>
+    <button class="tab-btn" style="--tab-color:var(--briks)" onclick="go('briks')"><span class="tab-dot"></span>Briks</button>
+    <button class="tab-btn" style="--tab-color:var(--pbrique)" onclick="go('pbrique')"><span class="tab-dot"></span>Première Brique</button>
+    <button class="tab-btn" style="--tab-color:var(--ibkr)" onclick="go('ibkr')"><span class="tab-dot"></span>IBKR</button>
+    <button class="tab-btn" style="--tab-color:var(--binance)" onclick="go('binance')"><span class="tab-dot"></span>Binance</button>
+    <button class="tab-btn" style="--tab-color:var(--secours)" onclick="go('secours')"><span class="tab-dot"></span>Épargne secours</button>
+    <button class="tab-btn" style="--tab-color:var(--fond)" onclick="go('fond')"><span class="tab-dot"></span>Fond secours</button>
+  </div>
+
+  <!-- ========== OVERVIEW SECTION ========== -->
+  <div id="sec-overview" class="section active">
+    <div class="hero"><div><div class="stat-label">PATRIMOINE TOTAL</div><div class="hero-total" id="ov-total">0 €</div><div class="hero-gain" id="ov-gain"></div><div class="hero-meta">Capital investi : <span id="ov-invested">0 €</span></div></div><div class="pb-list" id="pb-list"></div></div>
+    <div class="stat-grid"><div class="stat-card" style="--accent-top:var(--green)"><div class="stat-label">Gain / Perte total</div><div class="stat-val" id="ov-s-gain">0 €</div><div class="stat-sub" id="ov-s-pct"></div></div><div class="stat-card" style="--accent-top:var(--amber)"><div class="stat-label">Meilleure plateforme</div><div class="stat-val" id="ov-s-best">—</div><div class="stat-sub" id="ov-s-bestpct"></div></div><div class="stat-card" style="--accent-top:var(--cyan)"><div class="stat-label">Positions actives</div><div class="stat-val" id="ov-s-pos">0</div><div class="stat-sub">sur 7 catégories</div></div><div class="stat-card" style="--accent-top:var(--violet)"><div class="stat-label">Projection 1 an</div><div class="stat-val" id="ov-s-proj">0 €</div><div class="stat-sub">estimée</div></div><div class="stat-card" style="--accent-top:#34d399"><div class="stat-label">💧 Liquidités totales</div><div class="stat-val" style="color:#34d399" id="ov-s-liq">0 €</div><div class="stat-sub">cash disponible</div></div><div class="stat-card" style="--accent-top:#94a3b8"><div class="stat-label">Patrimoine net total</div><div class="stat-val" id="ov-s-net">0 €</div><div class="stat-sub">investi + liquidités</div></div></div>
+    <div class="sec-label" style="margin: 20px 0 12px;">📋 TOUTES LES POSITIONS</div>
+    <div class="tbl-wrap"><table><thead><tr><th>Actif / Projet</th><th>Plateforme</th><th>Investi</th><th>Valeur actuelle</th><th>Gain €</th><th>Gain %</th><th>Actions</th></tr></thead><tbody id="all-tbody"><tr><td colspan="7"><div class="empty">➕ Ajoutez des actifs</div></td></tr></tbody></table></div>
+    <div class="sec-label">📊 ANALYSE GRAPHIQUE</div>
+    <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));"><div class="card"><div class="chart-title">Évolution</div><canvas id="ch-evol" height="180"></canvas></div><div class="card"><div class="chart-title">Répartition</div><canvas id="ch-pie" height="180"></canvas></div><div class="card"><div class="chart-title">Investi vs Valeur</div><canvas id="ch-iv" height="180"></canvas></div></div>
+    <div class="sec-label">🚀 PROJECTION LONG TERME (taux saisi)</div>
+    <div class="card" style="margin-bottom: 20px;"><div class="field" style="max-width: 260px;"><label>Taux de rendement annuel (%)</label><input type="number" id="global-rate" value="7.5" step="0.5" onchange="renderOverview()"></div></div>
+    <div class="proj-card" style="background: var(--bg3); border-radius: 28px; padding: 28px; border:1px solid var(--border);"><div class="stat-grid" id="proj-grid"></div><canvas id="ch-proj" height="200"></canvas></div>
+    <div class="sec-label">📅 HISTORIQUE MANUEL</div>
+    <div class="card"><div style="display:flex; gap:12px; flex-wrap:wrap;"><input type="date" id="h-date" style="flex:1"><input type="number" id="h-val" placeholder="Valeur totale (€)" style="flex:2"><input type="text" id="h-note" placeholder="Note" style="flex:2"><button class="btn btn-primary" onclick="addHistory()">+ Ajouter</button></div><div id="h-log" style="margin-top: 20px; max-height:200px; overflow:auto;"></div></div>
+  </div>
+
+  <!-- BRIKS (tokenisé) -->
+  <div id="sec-briks" class="section"><div class="sec-label">🧱 BRIKS — immobilier tokenisé</div><div class="card" style="display:flex; gap:16px; flex-wrap:wrap;"><div class="field"><label>💰 Liquidités Briks (€)</label><input type="number" id="briks-liq-input" step="any" oninput="setLiquidity('briks')"></div></div><div class="form-card" id="briks-form">...</div><div class="tbl-wrap"><table><thead><tr><th>Projet</th><th>Investi</th><th>Rendement annuel</th><th>Revenus reçus</th><th>Gain réel</th><th>Actions</th></tr></thead><tbody id="briks-tbody"></tbody></table></div></div>
+  <!-- Première Brique -->
+  <div id="sec-pbrique" class="section"><div class="sec-label">🏗️ PREMIÈRE BRIQUE</div><div class="card"><div class="field"><label>Liquidités (€)</label><input type="number" id="pbrique-liq-input" oninput="setLiquidity('pbrique')"></div></div><div class="form-card">...</div><div class="tbl-wrap"><table><thead><tr><th>Projet</th><th>Investi</th><th>Taux</th><th>Revenus reçus</th><th>ROI</th><th></th></tr></thead><tbody id="pbrique-tbody"></tbody></table></div></div>
+  <!-- IBKR -->
+  <div id="sec-ibkr" class="section"><div class="sec-label">📈 INTERACTIVE BROKERS</div><div class="stat-grid"><div class="stat-card"><div class="stat-label">Portefeuille IBKR</div><div class="stat-val" id="ibkr-hero-val">0 €</div><div class="stat-sub" id="ibkr-hero-gain"></div></div><div class="stat-card"><div class="stat-label">Cash dispo</div><div class="stat-val" id="ibkr-liq-disp">0 €</div></div></div><div class="field"><label>Liquidités (€)</label><input type="number" id="ibkr-liq-input" oninput="setLiquidity('ibkr')"></div><div class="form-card"><div class="form-grid"><input placeholder="Ticker" id="ib-tick"><input placeholder="Quantité" id="ib-qty" type="number"><input placeholder="Prix entrée" id="ib-entry"><input placeholder="Prix actuel" id="ib-cur"></div><button class="btn btn-primary" onclick="add('ibkr')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Ticker</th><th>Qté</th><th>Entrée</th><th>Actuel</th><th>Gain</th><th></th></tr></thead><tbody id="ibkr-tbody"></tbody></table></div></div>
+  <!-- Binance -->
+  <div id="sec-binance" class="section"><div class="sec-label">🔶 BINANCE</div><div class="stat-grid"><div class="stat-card"><div class="stat-label">Portefeuille</div><div class="stat-val" id="bn-hero-val">0 $</div></div><div class="stat-card"><div class="stat-label">Cash USDT</div><div class="stat-val" id="bn-liq-disp">0 $</div></div></div><div class="field"><label>Liquidités ($)</label><input type="number" id="bn-liq-input" oninput="setLiquidity('binance')"></div><div class="form-card"><div class="form-grid"><input placeholder="Crypto" id="bn-sym"><input placeholder="Quantité" id="bn-qty"><input placeholder="Prix entrée $" id="bn-entry"><input placeholder="Prix actuel $" id="bn-cur"></div><button class="btn btn-primary" onclick="add('binance')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Actif</th><th>Qté</th><th>Valeur</th><th>Gain</th><th></th></tr></thead><tbody id="binance-tbody"></tbody></table></div></div>
+  <!-- Épargne secours & Fond simplifiés (squelette mais full dynamique) -->
+  <div id="sec-secours" class="section"><div class="sec-label">🏦 ÉPARGNE DE SECOURS</div><div class="card"><div class="stat-grid"><div class="stat-card"><div class="stat-val" id="sc-total">0 €</div><div class="stat-sub">total</div></div><div class="stat-card"><div class="stat-val" id="sc-int">0 €</div><div class="stat-sub">intérêts</div></div></div><div class="field"><label>Objectif (€)</label><input type="number" id="sc-goal-input" oninput="setGoal('secours')"></div><div class="form-card"><div class="form-grid"><input placeholder="Nom compte" id="sc-name"><input placeholder="Solde" id="sc-bal" type="number"><input placeholder="Taux annuel %" id="sc-rate"></div><button class="btn btn-primary" onclick="add('secours')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Compte</th><th>Solde</th><th>Intérêts</th><th></th></tr></thead><tbody id="secours-tbody"></tbody></table></div></div>
+  <div id="sec-fond" class="section"><div class="sec-label">🛡️ FOND DE SECOURS</div><div class="card"><div class="stat-grid"><div class="stat-card"><div class="stat-val" id="fd-total">0 €</div></div><div class="stat-card"><div class="stat-val" id="fd-int">0 €</div></div></div><div class="field"><label>Objectif (€)</label><input type="number" id="fd-goal-input" oninput="setGoal('fond')"></div><div class="form-card"><div class="form-grid"><input placeholder="Description" id="fd-name"><input placeholder="Montant" id="fd-amt" type="number"><input placeholder="Taux" id="fd-rate"></div><button class="btn btn-primary" onclick="add('fond')">+ Ajouter</button></div><div class="tbl-wrap"><table><thead><tr><th>Poste</th><th>Montant</th><th>Intérêts</th><th></th></tr></thead><tbody id="fond-tbody"></tbody></table></div></div>
+
+  <!-- EXPORT/IMPORT TOOLBAR -->
+  <div style="margin-top: 56px; border-top: 1px solid var(--border); padding: 32px 0 20px; text-align: center;">
+    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+      <button class="btn btn-primary" onclick="exportData()">💾 Exporter JSON</button>
+      <label class="btn" style="background: rgba(0,229,255,0.1); border:1px solid var(--cyan); cursor:pointer;">📂 Importer JSON<input type="file" accept=".json" onchange="importData(event)" style="display:none;"></label>
+    </div>
+    <div class="quote" style="margin-top: 28px; font-size: 12px; color: var(--muted2);" id="quote-text">✨ Cliquez pour une citation</div>
+  </div>
+</div>
+<div class="modal-bg" id="modal"><div class="modal-box"><div class="modal-head" id="modal-title">Modifier</div><div id="modal-body"></div><div class="modal-foot"><button class="btn" onclick="closeModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Sauvegarder</button></div></div></div>
+
+<script>
+  // ---------- STORE ----------
+  const STORAGE_KEY = 'wealth_tracker_final';
+  let S = { briks:[], pbrique:[], ibkr:[], binance:[], secours:[], fond:[], liquidity:{ ibkr:0, binance:0, briks:0, pbrique:0 }, secoursGoal:0, fondGoal:0, history:[] };
+  let charts = {};
+
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); document.getElementById('ts').innerText = new Date().toLocaleTimeString(); }
+  function load() { try { let d = localStorage.getItem(STORAGE_KEY); if(d) S = { ...S, ...JSON.parse(d) }; } catch(e){} }
+  
+  // helpers
+  const fmt = (v, unit='€') => (parseFloat(v)||0).toLocaleString('fr-FR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' ' + unit;
+  const sgn = v => v>=0 ? '+' : '';
+  const cls = v => v>=0 ? 'c-green' : 'c-red';
+  
+  // core compute
+  function computePlatform(pid) {
+    let inv = 0, cur = 0;
+    (S[pid]||[]).forEach(it => {
+      if(pid === 'ibkr' || pid === 'binance') {
+        let qty = parseFloat(it.qty)||0, entry=parseFloat(it.entry)||0, curr=parseFloat(it.current)||0;
+        inv += qty*entry; cur += qty*curr;
+      } else if(pid === 'briks' || pid === 'pbrique') {
+        let i = parseFloat(it.inv)||0, recv = parseFloat(it.recv)||0;
+        inv += i; cur += i + recv;
+      } else if(pid === 'secours') { let b=parseFloat(it.bal)||0, ir=parseFloat(it.irecv)||0; inv+=b; cur+=b+ir; }
+      else if(pid === 'fond') { let a=parseFloat(it.amt)||0, ir=parseFloat(it.irecv)||0; inv+=a; cur+=a+ir; }
+    });
+    return { inv, cur, gain: cur-inv };
+  }
+  function getTotalLiquidity() { return Object.values(S.liquidity).reduce((a,b)=>a+(parseFloat(b)||0),0); }
+  function overall() {
+    let inv=0,cur=0,pos=0; let bd={};
+    ['briks','pbrique','ibkr','binance','secours','fond'].forEach(p => { let r=computePlatform(p); bd[p]=r; inv+=r.inv; cur+=r.cur; pos+=(S[p]||[]).length; });
+    return {inv,cur,gain:cur-inv,bd,pos};
+  }
+
+  // render overview + projections + graphs
+  function renderOverview() {
+    let o = overall(); let liq = getTotalLiquidity();
+    document.getElementById('ov-total').innerText = fmt(o.cur);
+    document.getElementById('ov-invested').innerText = fmt(o.inv);
+    let pct = o.inv ? (o.gain/o.inv*100) : 0;
+    document.getElementById('ov-gain').innerHTML = `<span class="${cls(o.gain)}">${sgn(o.gain)}${fmt(o.gain)} (${sgn(pct)}${pct.toFixed(2)}%)</span>`;
+    document.getElementById('ov-s-gain').innerHTML = fmt(o.gain);
+    document.getElementById('ov-s-pct').innerHTML = `${sgn(pct)}${pct.toFixed(2)}%`;
+    document.getElementById('ov-s-pos').innerText = o.pos;
+    document.getElementById('ov-s-liq').innerHTML = fmt(liq);
+    document.getElementById('ov-s-net').innerHTML = fmt(o.cur+liq);
+    let best = {pid:'',pct:-Infinity}; Object.entries(o.bd).forEach(([pid,r])=>{ if(r.inv>0){let gp=r.gain/r.inv*100; if(gp>best.pct){best.pct=gp; best.pid=pid;}}});
+    document.getElementById('ov-s-best').innerText = best.pid ? best.pid.toUpperCase() : '—';
+    document.getElementById('ov-s-bestpct').innerHTML = best.pct > -Infinity ? `+${best.pct.toFixed(2)}%` : '—';
+    
+    let rate = parseFloat(document.getElementById('global-rate').value) || 7.5;
+    let ar = rate/100;
+    let projDiv = document.getElementById('proj-grid');
+    if(projDiv) projDiv.innerHTML = `<div class="stat-card"><div class="stat-label">20 ANS</div><div class="stat-val c-cyan">${fmt(o.cur * Math.pow(1+ar,20))}</div></div>
+                                      <div class="stat-card"><div class="stat-label">30 ANS</div><div class="stat-val c-violet">${fmt(o.cur * Math.pow(1+ar,30))}</div></div>`;
+    let years = [0,5,10,20,30];
+    let projData = years.map(y => o.cur * Math.pow(1+ar,y));
+    let ctx = document.getElementById('ch-proj')?.getContext('2d');
+    if(ctx){ if(charts.proj) charts.proj.destroy(); charts.proj = new Chart(ctx, { type:'line', data:{ labels:years.map(y=>y+' ans'), datasets:[{label:'Projection', data:projData, borderColor:'#00e5ff', fill:true, tension:0.3}] }, options:{ responsive:true, maintainAspectRatio:true } }); }
+    // pie + bars quick
+    let pieCtx = document.getElementById('ch-pie')?.getContext('2d');
+    if(pieCtx){ let vals = Object.values(o.bd).map(v=>v.cur); let lbls = Object.keys(o.bd); if(charts.pie) charts.pie.destroy(); charts.pie = new Chart(pieCtx, { type:'doughnut', data:{ labels:lbls, datasets:[{data:vals, backgroundColor:['#fb923c','#a78bfa','#38bdf8','#fbbf24','#34d399','#f472b6']}] } }); }
+    let allRows = [];
+    Object.entries(o.bd).forEach(([pid,val])=>{ (S[pid]||[]).forEach((it,idx)=>{ let name = it.name||it.tick||it.sym||'Actif'; let inv=0,cur=0; if(pid.includes('brik')||pid==='pbrique'){ inv=parseFloat(it.inv); cur=inv+(parseFloat(it.recv)||0); } else if(pid==='ibkr'||pid==='binance'){ let q=parseFloat(it.qty)||0; inv=q*(parseFloat(it.entry)||0); cur=q*(parseFloat(it.current)||0); } else if(pid==='secours'){ inv=parseFloat(it.bal); cur=inv+(parseFloat(it.irecv)||0); } else { inv=parseFloat(it.amt); cur=inv+(parseFloat(it.irecv)||0); }
+      let g=cur-inv, gp=inv?g/inv*100:0;
+      allRows.push(`<tr><td>${name}</td><td><span class="tag">${pid}</span></td><td>${fmt(inv)}</td><td>${fmt(cur)}</td><td class="${cls(g)}">${sgn(g)}${fmt(g)}</td><td class="${cls(gp)}">${sgn(gp)}${gp.toFixed(1)}%</td><td><button class="btn-icon btn-edit" onclick="openEdit('${pid}',${idx})">✏️</button> <button class="btn-icon btn-del" onclick="del('${pid}',${idx})">🗑</button></td></tr>`);
+    });
+    document.getElementById('all-tbody').innerHTML = allRows.length ? allRows.join('') : '<tr><td colspan="7"><div class="empty">Aucune donnée</div></td></tr>';
+  }
+
+  function add(pid) { let it={}; if(pid==='briks') it={name:prompt('Nom projet'), inv:prompt('Investi'), recv:0}; else if(pid==='pbrique') it={name:prompt('Nom'), inv:prompt('Montant'), recv:0}; else if(pid==='ibkr') it={tick:prompt('Ticker'), qty:prompt('Qté'), entry:prompt('Entrée'), current:prompt('Actuel')}; else if(pid==='binance') it={sym:prompt('Crypto'), qty:prompt('Qté'), entry:prompt('Prix entrée'), current:prompt('Prix actuel')}; else if(pid==='secours') it={name:prompt('Compte'), bal:prompt('Solde'), irecv:0, rate:0}; else if(pid==='fond') it={name:prompt('Description'), amt:prompt('Montant'), irecv:0};
+    S[pid].push(it); save(); renderAll();
+  }
+  function del(pid,i){ if(confirm('Supprimer ?')){ S[pid].splice(i,1); save(); renderAll(); } }
+  function setLiquidity(pid){ let v = parseFloat(document.getElementById(`${pid}-liq-input`).value)||0; S.liquidity[pid]=v; save(); renderAll(); }
+  function setGoal(type){ let v = parseFloat(document.getElementById(`${type==='secours'?'sc':'fd'}-goal-input`).value)||0; S[`${type}Goal`]=v; save(); renderAll(); }
+  function addHistory(){ let d=document.getElementById('h-date').value, val=document.getElementById('h-val').value; if(!d||!val) return; S.history.push({date:d,value:parseFloat(val)}); save(); renderOverview(); }
+  function exportData(){ let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'})); a.download=`patrimoine_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
+  function importData(e){ let f=e.target.files[0]; if(!f) return; let r=new FileReader(); r.onload=ev=>{ try{ let d=JSON.parse(ev.target.result); S={...S,...d}; save(); renderAll(); alert('✅ Import réussi'); }catch(e){ alert('Fichier invalide'); } }; r.readAsText(f); }
+  function openEdit(pid,i){ window.editCtx={pid,i}; let it=S[pid][i]; let html=''; for(let k in it){ if(typeof it[k]!='function') html+=`<div class="field"><label>${k}</label><input id="edit-${k}" value="${it[k]}"></div>`; } document.getElementById('modal-body').innerHTML=html; document.getElementById('modal').classList.add('open'); }
+  function saveEdit(){ let {pid,i}=window.editCtx; let it=S[pid][i]; for(let k in it){ let inp=document.getElementById(`edit-${k}`); if(inp) it[k]=inp.value; } save(); renderAll(); closeModal(); }
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+  function renderAll(){ renderOverview(); renderPlatforms(); }
+  function renderPlatforms(){ ['briks','pbrique','ibkr','binance','secours','fond'].forEach(pid=>{ let tbody=document.getElementById(`${pid}-tbody`); if(tbody){ let items=S[pid]; tbody.innerHTML=items.map((it,i)=>`<tr><td>${it.name||it.tick||it.sym||'—'}</td><td>${fmt(it.inv||it.amt||(it.qty*it.entry)||0)}</td><td>${fmt(it.current||it.recv||it.irecv||0)}</td><td><button class="btn-icon btn-edit" onclick="openEdit('${pid}',${i})">✏️</button> <button class="btn-icon btn-del" onclick="del('${pid}',${i})">🗑</button></td></tr>`).join('')||'<tr><td colspan="4">Aucun élément</td></tr>'; } });
+    document.querySelectorAll('#briks-liq-input, #pbrique-liq-input, #ibkr-liq-input, #bn-liq-input').forEach(inp=>{ let pid=inp.id.split('-')[0]; if(S.liquidity[pid]) inp.value=S.liquidity[pid]; });
+    document.getElementById('sc-goal-input').value=S.secoursGoal; document.getElementById('fd-goal-input').value=S.fondGoal;
+  }
+  function go(sectionId){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(`sec-${sectionId}`).classList.add('active'); renderAll(); }
+  function newQuote(){ const quotes=["💡 L'argent est un bon serviteur mais un mauvais maître.","📈 Les intérêts composés sont la huitième merveille.","🚀 Investis tôt, récolte tard.","🌱 Chaque euro investi travaille pour toi.","🎯 La liberté financière est une discipline quotidienne."]; document.getElementById('quote-text').innerHTML=quotes[Math.floor(Math.random()*quotes.length)]; }
+  load(); renderAll(); setInterval(()=>save(),30000); newQuote();
+</script>
+</body>
+</html>
+```
