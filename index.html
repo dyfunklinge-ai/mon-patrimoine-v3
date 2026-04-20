@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>◈ PATRIMOINE v5</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080b12;--bg2:#0d1117;--bg3:#121820;--bg4:#1a2130;--bg5:#1f2940;
+  --border:rgba(255,255,255,0.05);--border2:rgba(255,255,255,0.10);
+  --cyan:#00d4ff;--cyan2:#0099cc;
+  --green:#00c896;--green2:#009970;
+  --red:#ff4560;--amber:#ffb800;
+  --violet:#8b5cf6;--pink:#f472b6;
+  --briks:#f97316;--pbrique:#a78bfa;--ibkr:#38bdf8;--binance:#f59e0b;
+  --secours:#34d399;--fond:#f472b6;
+  --text:#e2eaf5;--muted:#4a5a72;--muted2:#6b7f99;
+  --font:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+}
+html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font);
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+/* GRID BACKGROUND */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%,rgba(0,212,255,.04) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%,rgba(139,92,246,.04) 0%,transparent 50%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,212,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.012) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 20px 100px}
+
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px;
+  flex-wrap:wrap;gap:12px;
+}
+.logo{display:flex;flex-direction:column;gap:2px}
+.logo-name{font-size:18px;font-weight:700;letter-spacing:-.5px;color:var(--text)}
+.logo-name span{color:var(--cyan)}
+.logo-ver{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:var(--mono)}
+.live{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);font-family:var(--mono)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(0,200,150,.18);animation:pulse 2.4s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+.tab{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:var(--bg3);color:var(--muted2);
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
+  white-space:nowrap;font-family:var(--font);
+}
+.tab:hover{border-color:var(--border2);color:var(--text);background:var(--bg4)}
+.tab.active{
+  color:#000;border-color:transparent;
+  background:var(--tc,var(--cyan));
+  box-shadow:0 4px 16px -4px color-mix(in srgb,var(--tc,var(--cyan)) 50%,transparent);
+}
+.tab-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7}
+
+/* ── SECTIONS ── */
+.section{display:none}.section.active{display:block}
+
+/* ── LABEL ── */
+.sec-lbl{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;
+  color:var(--muted);margin:24px 0 12px;
+  display:flex;align-items:center;gap:10px;font-family:var(--mono);
+}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── CARD ── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;position:relative;overflow:hidden;transition:all .2s;
+}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--at,var(--cyan));border-radius:var(--radius) var(--radius) 0 0;
+}
+.stat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)}
+.stat-val{
+  font-size:22px;font-weight:700;letter-spacing:-.8px;line-height:1;
+  /* FIX: no text curves */
+  -webkit-text-fill-color:unset!important;
+  background:none!important;
+}
+.stat-sub{font-size:11px;margin-top:5px;color:var(--muted2)}
+
+/* Colors */
+.c-cyan{color:var(--cyan)!important}
+.c-green{color:var(--green)!important}
+.c-red{color:var(--red)!important}
+.c-amber{color:var(--amber)!important}
+.c-violet{color:var(--violet)!important}
+.c-muted{color:var(--muted2)!important}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,rgba(0,212,255,.05) 0%,rgba(139,92,246,.04) 100%);
+  border:1px solid rgba(0,212,255,.08);border-radius:var(--radius-lg);
+  padding:28px 32px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;
+  margin-bottom:16px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,212,255,.05) 0%,transparent 70%);pointer-events:none;
+}
+.hero-total{
+  font-size:44px;font-weight:700;letter-spacing:-2px;line-height:1;color:var(--text);
+  /* NO gradient text = no rendering issues */
+}
+.hero-total span{color:var(--cyan)}
+.hero-gain{font-size:16px;font-weight:600;margin-top:8px;letter-spacing:-.2px}
+.hero-meta{font-size:11px;color:var(--muted2);margin-top:6px;font-family:var(--mono)}
+
+/* Platform bars */
+.pb-list{display:flex;flex-direction:column;gap:8px}
+.pb-row{display:grid;grid-template-columns:130px 1fr 48px 70px;gap:6px;align-items:center}
+.pb-name{font-size:11px;font-weight:600}
+.pb-track{height:3px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.pb-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.pb-pct{font-size:10px;color:var(--muted2);text-align:right;font-family:var(--mono)}
+.pb-perf{font-size:10px;font-weight:700;text-align:right;font-family:var(--mono)}
+
+/* ── CHARTS ── */
+.charts-2{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.charts-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.chart-ttl{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--muted);margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+}
+.chart-badge{
+  font-size:9px;padding:2px 7px;border-radius:99px;
+  background:rgba(0,212,255,.07);color:var(--cyan);
+  border:1px solid rgba(0,212,255,.12);font-family:var(--mono);
+}
+.chart-wrap{position:relative}
+
+/* ── TABLE ── */
+.tbl{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--muted);padding:10px 14px;text-align:left;
+  border-bottom:1px solid var(--border);background:var(--bg3);
+  white-space:nowrap;font-family:var(--mono);
+}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody td{padding:11px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.025);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+.td-name{font-weight:600}
+.td-pos{color:var(--green);font-weight:600}
+.td-neg{color:var(--red);font-weight:600}
+.td-muted{color:var(--muted2)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:700;letter-spacing:.5px;font-family:var(--mono)}
+
+/* ── FORMS ── */
+.form-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.form-ttl{font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-family:var(--mono)}
+.icw{display:flex;gap:0}
+.icw input{border-radius:var(--radius-sm) 0 0 var(--radius-sm);border-right:none!important;flex:1;min-width:0}
+.icw select.cur-sel{border-radius:0 var(--radius-sm) var(--radius-sm) 0;width:68px;min-width:68px;flex-shrink:0;border-left:1px solid var(--border2)!important;background:var(--bg4)!important;font-size:11px!important;padding:9px 5px!important}
+input[type=text],input[type=number],input[type=date],select{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:9px 11px;color:var(--text);font-size:12px;font-family:var(--font);
+  outline:none;transition:border-color .15s,box-shadow .15s;width:100%;
+  -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+input::placeholder{color:var(--muted)}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a5a72' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;cursor:pointer;
+}
+select option{background:var(--bg2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius-sm);border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.btn-p{background:var(--cyan);color:#000}
+.btn-p:hover{background:var(--cyan2);transform:translateY(-1px);box-shadow:0 6px 18px -4px rgba(0,212,255,.35)}
+.btn-g{background:rgba(0,212,255,.07);color:var(--cyan);border:1px solid rgba(0,212,255,.15)}
+.btn-g:hover{background:rgba(0,212,255,.13)}
+.btn-d{background:rgba(255,69,96,.1);color:var(--red);border:1px solid rgba(255,69,96,.18)}
+.btn-d:hover{background:rgba(255,69,96,.2)}
+.bi{padding:5px 9px;border-radius:6px;border:none;font-size:11px;cursor:pointer;transition:all .13s}
+.be{background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.12)}
+.be:hover{background:rgba(0,212,255,.16)}
+.bd{background:rgba(255,69,96,.08);color:var(--red);border:1px solid rgba(255,69,96,.12)}
+.bd:hover{background:rgba(255,69,96,.18)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:26px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-hd{font-size:16px;font-weight:700;margin-bottom:18px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.modal-ft{display:flex;gap:8px;justify-content:flex-end}
+
+/* ── PROGRESS ── */
+.prg{height:4px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:6px}
+.prg-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+
+/* ── PROJ CARD ── */
+.proj-card{
+  background:linear-gradient(135deg,rgba(139,92,246,.07) 0%,rgba(0,212,255,.04) 100%);
+  border:1px solid rgba(139,92,246,.2);border-radius:var(--radius-lg);padding:24px;
+}
+.proj-ttl{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+
+/* ── RATE CTRL ── */
+.rate-ctrl{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:12px 16px;margin-bottom:18px;
+}
+.rate-ctrl label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);white-space:nowrap;font-family:var(--mono)}
+.rate-ctrl input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan);height:3px;cursor:pointer;background:transparent;border:none;outline:none;padding:0}
+.rate-val{font-size:17px;font-weight:700;color:var(--cyan);font-family:var(--mono);min-width:50px;text-align:center}
+
+/* ── SF HERO ── */
+.sf-hero{border-radius:var(--radius-lg);padding:22px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:12px}
+.sf-hero.sec{background:linear-gradient(135deg,rgba(52,211,153,.06),rgba(16,185,129,.03));border:1px solid rgba(52,211,153,.15)}
+.sf-hero.fnd{background:linear-gradient(135deg,rgba(244,114,182,.06),rgba(236,72,153,.03));border:1px solid rgba(244,114,182,.15)}
+
+/* ── SECTION HERO (ibkr/binance) ── */
+.plat-hero{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+
+/* ── IBKR POSITIONS ── */
+.ibkr-positions-wrap{margin-bottom:20px}
+
+/* IBKR individual position card */
+.pos-cards{display:flex;flex-direction:column;gap:0}
+.pos-card-row{
+  display:grid;grid-template-columns:1fr auto auto auto auto auto;
+  gap:10px;align-items:center;
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.025);
+  transition:background .12s;
+}
+.pos-card-row:hover{background:rgba(255,255,255,.02)}
+.pos-card-row:last-child{border-bottom:none}
+.pos-ticker{font-size:14px;font-weight:700}
+.pos-detail{font-size:10px;color:var(--muted2);margin-top:2px;font-family:var(--mono)}
+.pos-val-wrap{text-align:right}
+.pos-val{font-size:14px;font-weight:700}
+.pos-sub{font-size:10px;color:var(--muted2);font-family:var(--mono)}
+
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;color:var(--muted);font-size:13px}
+.empty-ico{font-size:32px;margin-bottom:8px}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(8,11,18,.93);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding:10px 20px;display:flex;align-items:center;justify-content:center;
+}
+.bb-inner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .charts-2,.charts-3{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .sf-hero{grid-template-columns:1fr 1fr}
+  .plat-hero{grid-template-columns:1fr 1fr}
+}
+@media(max-width:720px){
+  .app{padding:0 12px 100px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .hero-total{font-size:32px}
+  .hero{padding:20px}
+  .form-grid{grid-template-columns:1fr}
+  .sf-hero{grid-template-columns:1fr}
+  .pb-row{grid-template-columns:110px 1fr 42px}
+  .pb-perf{display:none}
+  .modal-grid{grid-template-columns:1fr}
+  .plat-hero{grid-template-columns:1fr}
+  .pos-card-row{grid-template-columns:1fr auto auto}
+}
+@media(max-width:440px){
+  .stat-grid{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .hero-total{font-size:28px}
+}
+/* Portrait/landscape fix */
+@media screen and (orientation:landscape) and (max-height:500px){
+  .hero-total{font-size:26px}
+  .hero{padding:16px 20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-name">◈ PATRI<span>MOINE</span></div>
+    <div class="logo-ver">Suivi portefeuille — v5.0</div>
+  </div>
+  <div class="live"><div class="live-dot"></div><span id="ts">En ligne</span></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" style="--tc:var(--cyan)"    onclick="go('overview')"><span class="tab-dot"></span>Vue d'ensemble</button>
+  <button class="tab"        style="--tc:var(--briks)"   onclick="go('briks')">   <span class="tab-dot"></span>Briks</button>
+  <button class="tab"        style="--tc:var(--pbrique)" onclick="go('pbrique')"> <span class="tab-dot"></span>Première Brique</button>
+  <button class="tab"        style="--tc:var(--ibkr)"    onclick="go('ibkr')">    <span class="tab-dot"></span>IBKR</button>
+  <button class="tab"        style="--tc:var(--binance)" onclick="go('binance')"> <span class="tab-dot"></span>Binance</button>
+  <button class="tab"        style="--tc:var(--secours)" onclick="go('secours')"> <span class="tab-dot"></span>Épargne</button>
+  <button class="tab"        style="--tc:var(--fond)"    onclick="go('fond')">    <span class="tab-dot"></span>Fond</button>
+</div>
+
+<!-- ═══════════ OVERVIEW ════════════════════════════════════ -->
+<div id="sec-overview" class="section active">
+
+  <div class="hero">
+    <div>
+      <div class="stat-lbl">Valeur totale du patrimoine</div>
+      <div class="hero-total" id="ov-total"><span>0</span> €</div>
+      <div class="hero-gain" id="ov-gain" style="color:var(--green)">+0 € — +0.00%</div>
+      <div class="hero-meta">Capital investi : <span id="ov-inv">0 €</span> &nbsp;|&nbsp; Liquidités : <span id="ov-liq">0 €</span></div>
+    </div>
+    <div class="pb-list" id="pb-list"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card" style="--at:var(--green)">
+      <div class="stat-lbl">Gain / Perte total</div>
+      <div class="stat-val c-green" id="ov-gain2">+0 €</div>
+      <div class="stat-sub" id="ov-pct">+0.00%</div>
+    </div>
+    <div class="stat-card" style="--at:var(--amber)">
+      <div class="stat-lbl">Meilleure plateforme</div>
+      <div class="stat-val c-amber" id="ov-best">—</div>
+      <div class="stat-sub c-green" id="ov-bestpct">—</div>
+    </div>
+    <div class="stat-card" style="--at:var(--cyan)">
+      <div class="stat-lbl">Positions actives</div>
+      <div class="stat-val c-cyan" id="ov-pos">0</div>
+      <div class="stat-sub">toutes plateformes</div>
+    </div>
+    <div class="stat-card" style="--at:var(--violet)">
+      <div class="stat-lbl">Projection 1 an</div>
+      <div class="stat-val c-violet" id="ov-proj1">0 €</div>
+      <div class="stat-sub">intérêts composés</div>
+    </div>
+    <div class="stat-card" style="--at:var(--secours)">
+      <div class="stat-lbl">💧 Liquidités totales</div>
+      <div class="stat-val" style="color:var(--secours)" id="ov-liqs">0 €</div>
+      <div class="stat-sub">cash disponible</div>
+    </div>
+    <div class="stat-card" style="--at:#94a3b8">
+      <div class="stat-lbl">Patrimoine net total</div>
+      <div class="stat-val" style="color:#e2e8f0" id="ov-net">0 €</div>
+      <div class="stat-sub">investi + liquidités</div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Toutes les positions</div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Actif / Projet</th><th>Plateforme</th><th>Investi</th><th>Valeur actuelle</th><th>Gain €</th><th>Gain %</th><th>Actions</th></tr></thead>
+      <tbody id="all-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="sec-lbl">Analyse graphique</div>
+  <div class="charts-2">
+    <div class="card"><div class="chart-ttl">Évolution du patrimoine <span class="chart-badge">COURBE</span></div><div class="chart-wrap" style="height:230px"><canvas id="ch-evol"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Répartition <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:230px"><canvas id="ch-pie"></canvas></div></div>
+  </div>
+  <div class="charts-3" style="margin-top:12px">
+    <div class="card"><div class="chart-ttl">Investi vs Valeur <span class="chart-badge">BARRES</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-iv"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">% Gain par plateforme <span class="chart-badge">RADAR</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-radar"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Performance mensuelle <span class="chart-badge">BARRES</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-monthly"></canvas></div></div>
+  </div>
+
+  <div class="sec-lbl">Simulation de rendement</div>
+  <div class="proj-card">
+    <div class="proj-ttl">🔮 Simulation à long terme — intérêts composés</div>
+    <p style="font-size:12px;color:var(--muted2);margin-bottom:18px">Ajuste le taux pour simuler différents scénarios de croissance</p>
+    <div class="rate-ctrl">
+      <label>Taux annuel (%)</label>
+      <input type="range" id="gr-range" min="1" max="30" step="0.5" value="8" oninput="onGR(this.value)">
+      <div class="rate-val" id="gr-disp">8.0%</div>
+      <input type="number" id="gr-inp" value="8" min="0" max="100" step="0.5" style="width:76px;flex-shrink:0" oninput="onGR(this.value)">
+    </div>
+    <div class="stat-grid" style="margin-bottom:18px">
+      <div class="stat-card" style="--at:var(--violet)"><div class="stat-lbl">1 an</div><div class="stat-val c-violet" id="p1">0 €</div></div>
+      <div class="stat-card" style="--at:var(--cyan)"><div class="stat-lbl">3 ans</div><div class="stat-val c-cyan" id="p3">0 €</div></div>
+      <div class="stat-card" style="--at:var(--green)"><div class="stat-lbl">5 ans</div><div class="stat-val c-green" id="p5">0 €</div></div>
+      <div class="stat-card" style="--at:var(--amber)"><div class="stat-lbl">10 ans</div><div class="stat-val c-amber" id="p10">0 €</div></div>
+      <div class="stat-card" style="--at:var(--pink)"><div class="stat-lbl">20 ans</div><div class="stat-val" style="color:var(--pink)" id="p20">0 €</div></div>
+      <div class="stat-card" style="--at:#e879f9"><div class="stat-lbl">30 ans 🚀</div><div class="stat-val" style="color:#e879f9" id="p30">0 €</div></div>
+    </div>
+    <div class="chart-wrap" style="height:200px"><canvas id="ch-proj"></canvas></div>
+  </div>
+
+  <div class="sec-lbl">Historique manuel</div>
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <div class="field" style="min-width:140px"><label>Date</label><input type="date" id="h-date"></div>
+      <div class="field" style="flex:1;min-width:160px"><label>Valeur totale (€)</label><input type="number" id="h-val" placeholder="15 200"></div>
+      <div class="field" style="flex:2;min-width:160px"><label>Note</label><input type="text" id="h-note" placeholder="Après dépôt IBKR..."></div>
+      <div class="field" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-p" onclick="addHistory()">+ Ajouter</button></div>
+    </div>
+    <div id="h-log" style="max-height:190px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ═══════════ BRIKS ══════════════════════════════════════ -->
+<div id="sec-briks" class="section">
+
+  <!-- PATRIMOINE INDIVIDUEL BRIKS -->
+  <div class="sec-lbl">Patrimoine Briks</div>
+  <div class="stat-grid" id="briks-patrimoine" style="margin-bottom:4px"></div>
+
+  <div class="sec-lbl">Projets</div>
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--secours)">💧 Liquidités Briks</div>
+    <div class="field" style="flex:1;min-width:190px">
+      <label>Cash disponible</label>
+      <div class="icw">
+        <input type="number" id="briks-liq-inp" placeholder="Ex : 500" step="any" oninput="setLiq('briks')">
+        <select class="cur-sel" id="briks-liq-cur" onchange="setLiq('briks')">
+          <option>EUR</option><option>USD</option><option>CHF</option><option>USDT</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--briks)">◆</span> Ajouter un projet Briks</div>
+    <div class="form-grid">
+      <div class="field"><label>Nom du projet</label><input type="text" id="b-name" placeholder="Ex : Résidence Lyon"></div>
+      <div class="field"><label>Montant investi (€)</label><input type="number" id="b-inv" placeholder="5 000"></div>
+      <div class="field"><label>Rendement annuel (%)</label><input type="number" id="b-rate" placeholder="7.5" step="0.1"></div>
+      <div class="field"><label>Durée estimée (mois)</label><input type="number" id="b-dur" placeholder="36"></div>
+      <div class="field"><label>Revenus reçus (€)</label><input type="number" id="b-recv" placeholder="0"></div>
+      <div class="field"><label>Statut</label><select id="b-status"><option>En cours</option><option>Terminé</option><option>En attente</option></select></div>
+      <div class="field"><label>Date d'entrée</label><input type="date" id="b-date"></div>
+      <div class="field"><label>Notes</label><input type="text" id="b-notes" placeholder="Optionnel"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('briks')">+ Ajouter le projet</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Projet</th><th>Investi</th><th>Rend.</th><th>Durée</th><th>Reçus</th><th>Attendus</th><th>Gain</th><th>ROI</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody id="briks-tbody"></tbody>
+    </table>
+  </div>
+  <div class="charts-3" style="margin-top:12px">
+    <div class="card"><div class="chart-ttl">Répartition <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-bpie"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Reçus vs Attendus <span class="chart-badge">BARRES</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-brv"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">ROI par projet <span class="chart-badge">HORIZONTAL</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-broi"></canvas></div></div>
+  </div>
+  <div class="sec-lbl" style="margin-top:20px">Projection Briks</div>
+  <div class="proj-card">
+    <div class="proj-ttl">🔮 Projection Briks</div>
+    <div class="rate-ctrl">
+      <label>Taux annuel (%)</label>
+      <input type="range" id="briks-rr" min="1" max="30" step="0.5" value="7" oninput="onSR('briks',this.value)">
+      <div class="rate-val" id="briks-rd">7.0%</div>
+      <input type="number" id="briks-ri" value="7" min="0" max="100" step="0.5" style="width:76px;flex-shrink:0" oninput="onSR('briks',this.value)">
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card" style="--at:var(--briks)"><div class="stat-lbl">5 ans</div><div class="stat-val" style="color:var(--briks)" id="briks-p5">0 €</div></div>
+      <div class="stat-card" style="--at:var(--cyan)"><div class="stat-lbl">10 ans</div><div class="stat-val c-cyan" id="briks-p10">0 €</div></div>
+      <div class="stat-card" style="--at:var(--pink)"><div class="stat-lbl">20 ans</div><div class="stat-val" style="color:var(--pink)" id="briks-p20">0 €</div></div>
+      <div class="stat-card" style="--at:#e879f9"><div class="stat-lbl">30 ans 🚀</div><div class="stat-val" style="color:#e879f9" id="briks-p30">0 €</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PREMIÈRE BRIQUE ═══════════════════════════ -->
+<div id="sec-pbrique" class="section">
+
+  <!-- PATRIMOINE INDIVIDUEL PB -->
+  <div class="sec-lbl">Patrimoine Première Brique</div>
+  <div class="stat-grid" id="pbrique-patrimoine" style="margin-bottom:4px"></div>
+
+  <div class="sec-lbl">Projets</div>
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--secours)">💧 Liquidités Première Brique</div>
+    <div class="field" style="flex:1;min-width:190px">
+      <label>Cash disponible</label>
+      <div class="icw">
+        <input type="number" id="pbrique-liq-inp" placeholder="Ex : 300" step="any" oninput="setLiq('pbrique')">
+        <select class="cur-sel" id="pbrique-liq-cur" onchange="setLiq('pbrique')">
+          <option>EUR</option><option>USD</option><option>CHF</option><option>USDT</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--pbrique)">◆</span> Ajouter un projet Première Brique</div>
+    <div class="form-grid">
+      <div class="field"><label>Nom du projet</label><input type="text" id="pb-name" placeholder="Ex : Le Bordeaux"></div>
+      <div class="field"><label>Montant investi (€)</label><input type="number" id="pb-inv" placeholder="3 000"></div>
+      <div class="field"><label>Taux annuel (%)</label><input type="number" id="pb-rate" placeholder="9.5" step="0.1"></div>
+      <div class="field"><label>Durée (mois)</label><input type="number" id="pb-dur" placeholder="18"></div>
+      <div class="field"><label>Revenus reçus (€)</label><input type="number" id="pb-recv" placeholder="0"></div>
+      <div class="field"><label>Statut</label><select id="pb-status"><option>En cours</option><option>Remboursé</option><option>En retard</option></select></div>
+      <div class="field"><label>Date de souscription</label><input type="date" id="pb-date"></div>
+      <div class="field"><label>Notes</label><input type="text" id="pb-notes" placeholder="Optionnel"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('pbrique')">+ Ajouter le projet</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Projet</th><th>Investi</th><th>Taux</th><th>Durée</th><th>Reçus</th><th>Attendus</th><th>Gain</th><th>ROI</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody id="pbrique-tbody"></tbody>
+    </table>
+  </div>
+  <div class="charts-3" style="margin-top:12px">
+    <div class="card"><div class="chart-ttl">Répartition <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-pbpie"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Reçus vs Attendus <span class="chart-badge">BARRES</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-pbrv"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Statut <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-pbst"></canvas></div></div>
+  </div>
+  <div class="sec-lbl" style="margin-top:20px">Projection Première Brique</div>
+  <div class="proj-card">
+    <div class="proj-ttl">🔮 Projection Première Brique</div>
+    <div class="rate-ctrl">
+      <label>Taux annuel (%)</label>
+      <input type="range" id="pbrique-rr" min="1" max="30" step="0.5" value="9" oninput="onSR('pbrique',this.value)">
+      <div class="rate-val" id="pbrique-rd">9.0%</div>
+      <input type="number" id="pbrique-ri" value="9" min="0" max="100" step="0.5" style="width:76px;flex-shrink:0" oninput="onSR('pbrique',this.value)">
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card" style="--at:var(--pbrique)"><div class="stat-lbl">5 ans</div><div class="stat-val" style="color:var(--pbrique)" id="pb-p5">0 €</div></div>
+      <div class="stat-card" style="--at:var(--cyan)"><div class="stat-lbl">10 ans</div><div class="stat-val c-cyan" id="pb-p10">0 €</div></div>
+      <div class="stat-card" style="--at:var(--pink)"><div class="stat-lbl">20 ans</div><div class="stat-val" style="color:var(--pink)" id="pb-p20">0 €</div></div>
+      <div class="stat-card" style="--at:#e879f9"><div class="stat-lbl">30 ans 🚀</div><div class="stat-val" style="color:#e879f9" id="pb-p30">0 €</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ IBKR ════════════════════════════════════════ -->
+<div id="sec-ibkr" class="section">
+
+  <!-- IBKR PATRIMOINE INDIVIDUEL -->
+  <div class="sec-lbl">Patrimoine IBKR — Valeur &amp; Performance</div>
+
+  <!-- Copie exacte IBKR: Valeur + Performance -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="stat-card" style="--at:var(--ibkr)">
+      <div class="stat-lbl">💼 Valeur du portefeuille</div>
+      <div class="stat-val" style="color:var(--ibkr)" id="ibkr-val-disp">CHF 0.00</div>
+      <div class="stat-sub" id="ibkr-gain-disp" style="color:var(--green)">+0 CHF (0%) depuis le début</div>
+    </div>
+    <div class="stat-card" style="--at:#38bdf8">
+      <div class="stat-lbl">📈 Performance totale</div>
+      <div class="stat-val c-green" id="ibkr-perf-disp">+0.00%</div>
+      <div class="stat-sub">Rendement total depuis le début</div>
+    </div>
+  </div>
+
+  <div class="plat-hero">
+    <div class="stat-card" style="--at:var(--ibkr)">
+      <div class="stat-lbl">Valeur positions</div>
+      <div class="stat-val" style="color:var(--ibkr)" id="ibkr-hero-v">0 €</div>
+      <div class="stat-sub" id="ibkr-hero-g">—</div>
+    </div>
+    <div class="stat-card" style="--at:var(--secours)">
+      <div class="stat-lbl">💧 Liquidités</div>
+      <div class="stat-val" style="color:var(--secours)" id="ibkr-liq-d">0 €</div>
+      <div class="stat-sub" id="ibkr-liq-cd">cash disponible</div>
+    </div>
+    <div class="stat-card" style="--at:#94a3b8">
+      <div class="stat-lbl">Total IBKR</div>
+      <div class="stat-val" style="color:#e2e8f0" id="ibkr-total-d">0 €</div>
+      <div class="stat-sub">positions + cash</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--secours)">💧 Cash disponible IBKR</div>
+    <div class="field" style="flex:1;min-width:190px">
+      <label>Liquidités</label>
+      <div class="icw">
+        <input type="number" id="ibkr-liq-inp" placeholder="Ex : 2 500" step="any" oninput="setLiq('ibkr')">
+        <select class="cur-sel" id="ibkr-liq-cur" onchange="setLiq('ibkr')">
+          <option>CHF</option><option>EUR</option><option>USD</option><option>GBP</option><option>CAD</option>
+        </select>
+      </div>
+    </div>
+    <!-- Capital initial pour % performance -->
+    <div class="field" style="flex:1;min-width:190px">
+      <label>Capital initial investi</label>
+      <div class="icw">
+        <input type="number" id="ibkr-capital-inp" placeholder="Ex : 564" step="any" oninput="setIBKRCapital()">
+        <select class="cur-sel" id="ibkr-capital-cur" onchange="setIBKRCapital()">
+          <option>CHF</option><option>EUR</option><option>USD</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--ibkr)">◆</span> Ajouter une position IBKR</div>
+    <div class="form-grid">
+      <div class="field"><label>Ticker / Nom</label><input type="text" id="ib-tick" placeholder="AI, NVDA, AIAG..."></div>
+      <div class="field"><label>Nom complet</label><input type="text" id="ib-fullname" placeholder="Air Liquide SA..."></div>
+      <div class="field"><label>Quantité</label><input type="number" id="ib-qty" placeholder="186" step="any"></div>
+      <div class="field"><label>Prix moyen d'entrée</label><input type="number" id="ib-entry" placeholder="180.00" step="any"></div>
+      <div class="field"><label>Prix actuel</label><input type="number" id="ib-cur" placeholder="186.22" step="any"></div>
+      <div class="field"><label>P&L non réalisé</label><input type="number" id="ib-pnl" placeholder="25.3" step="any"></div>
+      <div class="field"><label>Var. jour (%)</label><input type="number" id="ib-dayvar" placeholder="-0.09" step="any"></div>
+      <div class="field">
+        <label>Devise</label>
+        <select id="ib-currency">
+          <option>CHF</option><option>EUR</option><option>USD</option><option>GBP</option>
+        </select>
+      </div>
+      <div class="field"><label>Date d'achat</label><input type="date" id="ib-date"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('ibkr')">+ Ajouter la position</button>
+  </div>
+
+  <!-- Positions style IBKR -->
+  <div class="sec-lbl">Vos positions — P&L NON RÉALISÉ</div>
+  <div id="ibkr-pos-display"></div>
+
+  <div class="sec-lbl" style="margin-top:20px">Projection IBKR</div>
+  <div class="proj-card">
+    <div class="proj-ttl">🔮 Projection IBKR</div>
+    <div class="rate-ctrl">
+      <label>Taux annuel (%)</label>
+      <input type="range" id="ibkr-rr" min="1" max="30" step="0.5" value="10" oninput="onSR('ibkr',this.value)">
+      <div class="rate-val" id="ibkr-rd">10.0%</div>
+      <input type="number" id="ibkr-ri" value="10" min="0" max="100" step="0.5" style="width:76px;flex-shrink:0" oninput="onSR('ibkr',this.value)">
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card" style="--at:var(--ibkr)"><div class="stat-lbl">5 ans</div><div class="stat-val" style="color:var(--ibkr)" id="ibkr-p5">0 €</div></div>
+      <div class="stat-card" style="--at:var(--cyan)"><div class="stat-lbl">10 ans</div><div class="stat-val c-cyan" id="ibkr-p10">0 €</div></div>
+      <div class="stat-card" style="--at:var(--pink)"><div class="stat-lbl">20 ans</div><div class="stat-val" style="color:var(--pink)" id="ibkr-p20">0 €</div></div>
+      <div class="stat-card" style="--at:#e879f9"><div class="stat-lbl">30 ans 🚀</div><div class="stat-val" style="color:#e879f9" id="ibkr-p30">0 €</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BINANCE ═════════════════════════════════════ -->
+<div id="sec-binance" class="section">
+
+  <!-- BINANCE PATRIMOINE INDIVIDUEL -->
+  <div class="sec-lbl">Patrimoine Binance — Valeur &amp; Performance</div>
+
+  <!-- Copie aperçu Binance -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="stat-card" style="--at:var(--binance)">
+      <div class="stat-lbl">💰 Valeur totale estimée</div>
+      <div class="stat-val" style="color:var(--binance)" id="bn-val-disp">0 USDT</div>
+      <div class="stat-sub" id="bn-val-chf">≈ CHF 0.00</div>
+    </div>
+    <div class="stat-card" style="--at:#f59e0b">
+      <div class="stat-lbl">📊 G&amp;P aujourd'hui</div>
+      <div class="stat-val c-red" id="bn-gp-today">0 USDT (0%)</div>
+      <div class="stat-sub">variation sur la journée</div>
+    </div>
+  </div>
+
+  <div class="plat-hero">
+    <div class="stat-card" style="--at:var(--binance)">
+      <div class="stat-lbl">Valeur positions</div>
+      <div class="stat-val" style="color:var(--binance)" id="bn-hero-v">0 USDT</div>
+      <div class="stat-sub" id="bn-hero-g">—</div>
+    </div>
+    <div class="stat-card" style="--at:var(--secours)">
+      <div class="stat-lbl">💧 Liquidités</div>
+      <div class="stat-val" style="color:var(--secours)" id="bn-liq-d">0 USDT</div>
+      <div class="stat-sub">stablecoins disponibles</div>
+    </div>
+    <div class="stat-card" style="--at:#94a3b8">
+      <div class="stat-lbl">Total Binance</div>
+      <div class="stat-val" style="color:#e2e8f0" id="bn-total-d">0 USDT</div>
+      <div class="stat-sub">positions + cash</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--secours)">💧 Cash disponible Binance</div>
+    <div class="field" style="flex:1;min-width:190px">
+      <label>Liquidités</label>
+      <div class="icw">
+        <input type="number" id="bn-liq-inp" placeholder="Ex : 1 200" step="any" oninput="setLiq('binance')">
+        <select class="cur-sel" id="bn-liq-cur" onchange="setLiq('binance')">
+          <option>USDT</option><option>USDC</option><option>EUR</option><option>USD</option>
+        </select>
+      </div>
+    </div>
+    <!-- Taux USDT/CHF -->
+    <div class="field" style="flex:1;min-width:150px">
+      <label>Taux USDT → CHF</label>
+      <input type="number" id="bn-usdt-chf" placeholder="0.98" step="0.001" value="0.98" oninput="renderBinance()">
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--binance)">◆</span> Ajouter une position Binance</div>
+    <div class="form-grid">
+      <div class="field"><label>Crypto</label><input type="text" id="bn-sym" placeholder="BTC, ETH, SOL..."></div>
+      <div class="field"><label>Nom complet</label><input type="text" id="bn-fullname" placeholder="Bitcoin, Ethereum..."></div>
+      <div class="field"><label>Quantité</label><input type="number" id="bn-qty" placeholder="0.00474564" step="any"></div>
+      <div class="field"><label>Valeur actuelle (USDT)</label><input type="number" id="bn-curval" placeholder="354.81" step="any"></div>
+      <div class="field"><label>G&amp;P jour (USDT)</label><input type="number" id="bn-gpday" placeholder="-3.94" step="any"></div>
+      <div class="field"><label>G&amp;P jour (%)</label><input type="number" id="bn-gpdaypct" placeholder="-1.10" step="any"></div>
+      <div class="field"><label>Prix moyen (USDT)</label><input type="number" id="bn-entry" placeholder="98770.87" step="any"></div>
+      <div class="field"><label>Type</label><select id="bn-type"><option>Spot</option><option>Staking</option><option>Earn</option><option>Futures</option></select></div>
+      <div class="field"><label>Date d'achat</label><input type="date" id="bn-date"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('binance')">+ Ajouter la position</button>
+  </div>
+
+  <!-- Positions style Binance -->
+  <div class="sec-lbl">Soldes — Crypto</div>
+  <div id="bn-pos-display"></div>
+
+  <div class="sec-lbl" style="margin-top:20px">Projection Crypto</div>
+  <div class="proj-card">
+    <div class="proj-ttl">🔮 Projection Binance</div>
+    <div class="rate-ctrl">
+      <label>Taux annuel (%)</label>
+      <input type="range" id="binance-rr" min="1" max="50" step="0.5" value="15" oninput="onSR('binance',this.value)">
+      <div class="rate-val" id="binance-rd">15.0%</div>
+      <input type="number" id="binance-ri" value="15" min="0" max="200" step="0.5" style="width:76px;flex-shrink:0" oninput="onSR('binance',this.value)">
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card" style="--at:var(--binance)"><div class="stat-lbl">5 ans</div><div class="stat-val" style="color:var(--binance)" id="bn-p5">0</div></div>
+      <div class="stat-card" style="--at:var(--cyan)"><div class="stat-lbl">10 ans</div><div class="stat-val c-cyan" id="bn-p10">0</div></div>
+      <div class="stat-card" style="--at:var(--pink)"><div class="stat-lbl">20 ans</div><div class="stat-val" style="color:var(--pink)" id="bn-p20">0</div></div>
+      <div class="stat-card" style="--at:#e879f9"><div class="stat-lbl">30 ans 🚀</div><div class="stat-val" style="color:#e879f9" id="bn-p30">0</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ÉPARGNE ═════════════════════════════════════ -->
+<div id="sec-secours" class="section">
+  <div class="sec-lbl">Épargne de secours</div>
+  <div class="sf-hero sec">
+    <div>
+      <div class="stat-lbl">Total disponible</div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--secours)" id="sc-total">0 €</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:4px">Liquidités accessibles</div>
+    </div>
+    <div>
+      <div class="stat-lbl">Intérêts gagnés</div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--green)" id="sc-int">+0 €</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:4px">Sur tous les comptes</div>
+    </div>
+    <div>
+      <div class="stat-lbl">Objectif d'urgence</div>
+      <div style="font-size:20px;font-weight:700;color:var(--amber)" id="sc-goal-d">— €</div>
+      <div class="prg"><div class="prg-fill" id="sc-bar" style="background:var(--secours);width:0%"></div></div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:4px" id="sc-bar-txt">Fixez un objectif</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--secours)">🎯 Objectif</div>
+    <div class="field" style="flex:1;min-width:170px"><label>Montant cible (€)</label><input type="number" id="sc-goal-inp" placeholder="10 000" oninput="setGoal('secours')"></div>
+  </div>
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--secours)">◆</span> Ajouter un compte</div>
+    <div class="form-grid">
+      <div class="field"><label>Nom du compte</label><input type="text" id="sc-name" placeholder="Livret A..."></div>
+      <div class="field"><label>Banque</label><input type="text" id="sc-bank" placeholder="BNP, Crédit Agricole..."></div>
+      <div class="field"><label>Type</label><select id="sc-type"><option>Compte épargne</option><option>Livret A</option><option>CELI</option><option>PEL</option><option>Autre</option></select></div>
+      <div class="field"><label>Solde actuel (€)</label><input type="number" id="sc-bal" placeholder="5 000"></div>
+      <div class="field"><label>Taux annuel (%)</label><input type="number" id="sc-rate" placeholder="3.0" step="0.1"></div>
+      <div class="field"><label>Intérêts reçus (€)</label><input type="number" id="sc-irecv" placeholder="0"></div>
+      <div class="field"><label>Disponibilité</label><select id="sc-avail"><option>Immédiate</option><option>72h</option><option>1 mois</option><option>Bloqué</option></select></div>
+      <div class="field"><label>Date d'ouverture</label><input type="date" id="sc-date"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('secours')">+ Ajouter le compte</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Compte</th><th>Banque</th><th>Type</th><th>Solde</th><th>Taux</th><th>Intérêts</th><th>Disponibilité</th><th>Actions</th></tr></thead>
+      <tbody id="secours-tbody"></tbody>
+    </table>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+    <div class="card"><div class="chart-ttl">Répartition <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-scpie"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Progression objectif <span class="chart-badge">JAUGE</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-scgoal"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══════════ FOND ════════════════════════════════════════ -->
+<div id="sec-fond" class="section">
+  <div class="sec-lbl">Fond de secours</div>
+  <div class="sf-hero fnd">
+    <div>
+      <div class="stat-lbl">Total mis de côté</div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--fond)" id="fd-total">0 €</div>
+    </div>
+    <div>
+      <div class="stat-lbl">Intérêts générés</div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--green)" id="fd-int">+0 €</div>
+    </div>
+    <div>
+      <div class="stat-lbl">Objectif de réserve</div>
+      <div style="font-size:20px;font-weight:700;color:var(--amber)" id="fd-goal-d">— €</div>
+      <div class="prg"><div class="prg-fill" id="fd-bar" style="background:var(--fond);width:0%"></div></div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:4px" id="fd-bar-txt">Fixez un objectif</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px">
+    <div style="font-size:12px;font-weight:700;color:var(--fond)">🎯 Objectif</div>
+    <div class="field" style="flex:1;min-width:170px"><label>Montant cible (€)</label><input type="number" id="fd-goal-inp" placeholder="5 000" oninput="setGoal('fond')"></div>
+  </div>
+  <div class="form-card">
+    <div class="form-ttl"><span style="color:var(--fond)">◆</span> Ajouter un poste</div>
+    <div class="form-grid">
+      <div class="field"><label>Description</label><input type="text" id="fd-name" placeholder="Compte courant..."></div>
+      <div class="field"><label>Banque</label><input type="text" id="fd-bank" placeholder="BNC, RBC..."></div>
+      <div class="field"><label>Montant (€)</label><input type="number" id="fd-amt" placeholder="2 000"></div>
+      <div class="field"><label>Taux annuel (%)</label><input type="number" id="fd-rate" placeholder="0" step="0.1"></div>
+      <div class="field"><label>Intérêts reçus (€)</label><input type="number" id="fd-irecv" placeholder="0"></div>
+      <div class="field"><label>Accessibilité</label><select id="fd-avail"><option>Immédiate</option><option>Sous 24h</option><option>48-72h</option><option>1 semaine</option></select></div>
+      <div class="field"><label>Date</label><input type="date" id="fd-date"></div>
+      <div class="field"><label>Notes</label><input type="text" id="fd-notes" placeholder="Optionnel"></div>
+    </div>
+    <button class="btn btn-p" onclick="add('fond')">+ Ajouter</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Description</th><th>Banque</th><th>Montant</th><th>Taux</th><th>Intérêts</th><th>Total</th><th>Accessibilité</th><th>Actions</th></tr></thead>
+      <tbody id="fond-tbody"></tbody>
+    </table>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+    <div class="card"><div class="chart-ttl">Répartition <span class="chart-badge">DONUT</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-fdpie"></canvas></div></div>
+    <div class="card"><div class="chart-ttl">Progression objectif <span class="chart-badge">JAUGE</span></div><div class="chart-wrap" style="height:190px"><canvas id="ch-fdgoal"></canvas></div></div>
+  </div>
+</div>
+
+<div style="height:10px"></div>
+</div><!-- /app -->
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bb-inner">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-family:var(--mono)">◈ Sauvegarde</span>
+    <button class="btn btn-p" onclick="exportData()" style="padding:7px 16px;font-size:12px">💾 Exporter</button>
+    <label class="btn btn-g" style="padding:7px 16px;font-size:12px;cursor:pointer">
+      📂 Importer
+      <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+    </label>
+    <span id="quote-mini" onclick="newQuote()" title="Cliquer pour changer" style="font-size:11px;color:var(--muted2);cursor:pointer;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono)">💡 Clique pour une citation</span>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-hd" id="modal-ttl">Modifier</div>
+    <div id="modal-body"></div>
+    <div class="modal-ft">
+      <button class="btn btn-d" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-p" onclick="saveEdit()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STORE
+═══════════════════════════════════════════════════════════ */
+const KEY='pat-v5';
+let S={
+  briks:[],pbrique:[],ibkr:[],binance:[],secours:[],fond:[],
+  secoursGoal:0,fondGoal:0,history:[],
+  liq:{ibkr:0,binance:0,briks:0,pbrique:0},
+  liqCur:{ibkr:'CHF',binance:'USDT',briks:'EUR',pbrique:'EUR'},
+  subRates:{briks:7,pbrique:9,ibkr:10,binance:15},
+  globalRate:8,
+  ibkrCapital:564,ibkrCapitalCur:'CHF',
+  bnUsdtChf:0.98,
+  _milestone:0
+};
+let CH={};
+let editCtx={pid:null,idx:null};
+
+function load(){
+  try{const d=localStorage.getItem(KEY);if(d)S={...S,...JSON.parse(d)};}catch(e){}
+}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(S));
+  const el=document.getElementById('ts');
+  if(el)el.textContent='Mis à jour '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT / IMPORT
+═══════════════════════════════════════════════════════════ */
+function exportData(){
+  const a=document.createElement('a');
+  a.href='data:application/json,'+encodeURIComponent(JSON.stringify(S,null,2));
+  a.download='patrimoine-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  toast('✅ Données exportées !');
+}
+function importData(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!confirm('⚠️ Importer ce fichier remplacera toutes vos données. Continuer ?'))return;
+      S={...S,...d};save();go('overview');toast('✅ Importé avec succès !');
+    }catch{toast('❌ Fichier JSON invalide.');}
+  };
+  r.readAsText(f);ev.target.value='';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORMATTERS
+═══════════════════════════════════════════════════════════ */
+const fc=(v,s='€')=>{const n=parseFloat(v);if(isNaN(n))return'—';return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+'\u00A0'+s;};
+const fcN=(v,s='€')=>{const n=parseFloat(v);if(isNaN(n))return'—';return n.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:2})+'\u00A0'+s;};
+const sgn=v=>v>=0?'+':'';
+const cls=v=>v>=0?'td-pos':'td-neg';
+const revExp=(inv,rate,dur)=>(parseFloat(inv)||0)*(parseFloat(rate)||0)/100*(parseFloat(dur)||0)/12;
+
+/* ═══════════════════════════════════════════════════════════
+   META
+═══════════════════════════════════════════════════════════ */
+const M={
+  briks:{l:'Briks',c:'#f97316'},pbrique:{l:'Première Brique',c:'#a78bfa'},
+  ibkr:{l:'IBKR',c:'#38bdf8'},binance:{l:'Binance',c:'#f59e0b'},
+  secours:{l:'Épargne',c:'#34d399'},fond:{l:'Fond',c:'#f472b6'}
+};
+// inject tag styles
+const ts=document.createElement('style');
+ts.textContent=Object.entries(M).map(([k,m])=>`.tag-${k}{background:${m.c}22;color:${m.c}}`).join('');
+document.head.appendChild(ts);
+
+const aBtn=(pid,i)=>`<td><div style="display:flex;gap:4px">
+  <button class="bi be" onclick="openEdit('${pid}',${i})">✏️</button>
+  <button class="bi bd" onclick="del('${pid}',${i})">🗑</button>
+</div></td>`;
+
+/* ═══════════════════════════════════════════════════════════
+   COMPUTE
+═══════════════════════════════════════════════════════════ */
+function cPid(pid){
+  let inv=0,cur=0;
+  (S[pid]||[]).forEach(it=>{
+    if(pid==='ibkr'){
+      // use pnl+qty*entry as current
+      const qty=parseFloat(it.qty)||0,entry=parseFloat(it.entry)||0,pnl=parseFloat(it.pnl)||0;
+      inv+=qty*entry;cur+=qty*entry+pnl;
+    }else if(pid==='binance'){
+      const cv=parseFloat(it.curval)||0,qty=parseFloat(it.qty)||0,entryP=parseFloat(it.entry)||0;
+      inv+=qty*entryP;cur+=cv;
+    }else if(pid==='briks'||pid==='pbrique'){
+      inv+=parseFloat(it.inv)||0;cur+=(parseFloat(it.inv)||0)+(parseFloat(it.recv)||0);
+    }else if(pid==='secours'){
+      inv+=parseFloat(it.bal)||0;cur+=(parseFloat(it.bal)||0)+(parseFloat(it.irecv)||0);
+    }else if(pid==='fond'){
+      inv+=parseFloat(it.amt)||0;cur+=(parseFloat(it.amt)||0)+(parseFloat(it.irecv)||0);
+    }
+  });
+  return{inv,cur,gain:cur-inv,count:(S[pid]||[]).length};
+}
+function cAll(){
+  let inv=0,cur=0,pos=0;const bd={};
+  Object.keys(M).forEach(pid=>{const r=cPid(pid);bd[pid]=r;inv+=r.inv;cur+=r.cur;pos+=r.count;});
+  return{inv,cur,gain:cur-inv,bd,pos};
+}
+function getTotalLiq(){
+  return Object.values(S.liq||{}).reduce((a,b)=>a+(parseFloat(b)||0),0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADD
+═══════════════════════════════════════════════════════════ */
+function g(id){return(document.getElementById(id)||{}).value||'';}
+function add(pid){
+  let it={};
+  if(pid==='briks'){
+    if(!g('b-name')&&!g('b-inv')){toast('⚠️ Nom et montant requis');return;}
+    it={name:g('b-name'),inv:g('b-inv'),rate:g('b-rate'),dur:g('b-dur'),recv:g('b-recv'),status:g('b-status'),date:g('b-date'),notes:g('b-notes')};
+    ['b-name','b-inv','b-rate','b-dur','b-recv','b-date','b-notes'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }else if(pid==='pbrique'){
+    if(!g('pb-name')&&!g('pb-inv')){toast('⚠️ Nom et montant requis');return;}
+    it={name:g('pb-name'),inv:g('pb-inv'),rate:g('pb-rate'),dur:g('pb-dur'),recv:g('pb-recv'),status:g('pb-status'),date:g('pb-date'),notes:g('pb-notes')};
+    ['pb-name','pb-inv','pb-rate','pb-dur','pb-recv','pb-date','pb-notes'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }else if(pid==='ibkr'){
+    if(!g('ib-tick')){toast('⚠️ Ticker requis');return;}
+    it={tick:g('ib-tick'),fullname:g('ib-fullname'),qty:g('ib-qty'),entry:g('ib-entry'),current:g('ib-cur'),pnl:g('ib-pnl'),dayvar:g('ib-dayvar'),currency:g('ib-currency')||'CHF',date:g('ib-date')};
+    ['ib-tick','ib-fullname','ib-qty','ib-entry','ib-cur','ib-pnl','ib-dayvar','ib-date'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }else if(pid==='binance'){
+    if(!g('bn-sym')){toast('⚠️ Crypto requise');return;}
+    it={sym:g('bn-sym'),fullname:g('bn-fullname'),qty:g('bn-qty'),curval:g('bn-curval'),gpday:g('bn-gpday'),gpdaypct:g('bn-gpdaypct'),entry:g('bn-entry'),type:g('bn-type'),date:g('bn-date')};
+    ['bn-sym','bn-fullname','bn-qty','bn-curval','bn-gpday','bn-gpdaypct','bn-entry','bn-date'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }else if(pid==='secours'){
+    if(!g('sc-name')){toast('⚠️ Nom requis');return;}
+    it={name:g('sc-name'),bank:g('sc-bank'),type:g('sc-type'),bal:g('sc-bal'),rate:g('sc-rate'),irecv:g('sc-irecv'),avail:g('sc-avail'),date:g('sc-date')};
+    ['sc-name','sc-bank','sc-bal','sc-rate','sc-irecv','sc-date'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }else if(pid==='fond'){
+    if(!g('fd-name')&&!g('fd-amt')){toast('⚠️ Desc. et montant requis');return;}
+    it={name:g('fd-name'),bank:g('fd-bank'),amt:g('fd-amt'),rate:g('fd-rate'),irecv:g('fd-irecv'),avail:g('fd-avail'),date:g('fd-date'),notes:g('fd-notes')};
+    ['fd-name','fd-bank','fd-amt','fd-rate','fd-irecv','fd-date','fd-notes'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+  }
+  S[pid].push(it);save();renderPid(pid);renderOverview();checkMilestones();
+  toast('✅ Ajouté !');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DELETE / EDIT
+═══════════════════════════════════════════════════════════ */
+function del(pid,i){
+  if(!confirm('Supprimer cette entrée ?'))return;
+  S[pid].splice(i,1);save();renderPid(pid);renderOverview();
+}
+
+const FIELDS={
+  briks:[{k:'name',l:'Nom',t:'text'},{k:'inv',l:'Investi (€)',t:'number'},{k:'rate',l:'Taux (%)',t:'number'},{k:'dur',l:'Durée (mois)',t:'number'},{k:'recv',l:'Revenus reçus (€)',t:'number'},{k:'status',l:'Statut',t:'sel',o:['En cours','Terminé','En attente']},{k:'date',l:'Date',t:'date'},{k:'notes',l:'Notes',t:'text'}],
+  pbrique:[{k:'name',l:'Nom',t:'text'},{k:'inv',l:'Investi (€)',t:'number'},{k:'rate',l:'Taux (%)',t:'number'},{k:'dur',l:'Durée (mois)',t:'number'},{k:'recv',l:'Revenus reçus (€)',t:'number'},{k:'status',l:'Statut',t:'sel',o:['En cours','Remboursé','En retard']},{k:'date',l:'Date',t:'date'},{k:'notes',l:'Notes',t:'text'}],
+  ibkr:[{k:'tick',l:'Ticker',t:'text'},{k:'fullname',l:'Nom complet',t:'text'},{k:'qty',l:'Quantité',t:'number'},{k:'entry',l:'Prix entrée',t:'number'},{k:'current',l:'Prix actuel',t:'number'},{k:'pnl',l:'P&L non réalisé',t:'number'},{k:'dayvar',l:'Var. jour (%)',t:'number'},{k:'currency',l:'Devise',t:'sel',o:['CHF','EUR','USD','GBP']},{k:'date',l:'Date',t:'date'}],
+  binance:[{k:'sym',l:'Crypto',t:'text'},{k:'fullname',l:'Nom complet',t:'text'},{k:'qty',l:'Quantité',t:'number'},{k:'curval',l:'Valeur actuelle (USDT)',t:'number'},{k:'gpday',l:'G&P jour (USDT)',t:'number'},{k:'gpdaypct',l:'G&P jour (%)',t:'number'},{k:'entry',l:'Prix moyen (USDT)',t:'number'},{k:'type',l:'Type',t:'sel',o:['Spot','Staking','Earn','Futures']},{k:'date',l:'Date',t:'date'}],
+  secours:[{k:'name',l:'Compte',t:'text'},{k:'bank',l:'Banque',t:'text'},{k:'type',l:'Type',t:'sel',o:['Compte épargne','Livret A','CELI','PEL','Autre']},{k:'bal',l:'Solde (€)',t:'number'},{k:'rate',l:'Taux (%)',t:'number'},{k:'irecv',l:'Intérêts (€)',t:'number'},{k:'avail',l:'Dispo',t:'sel',o:['Immédiate','72h','1 mois','Bloqué']},{k:'date',l:'Date',t:'date'}],
+  fond:[{k:'name',l:'Description',t:'text'},{k:'bank',l:'Banque',t:'text'},{k:'amt',l:'Montant (€)',t:'number'},{k:'rate',l:'Taux (%)',t:'number'},{k:'irecv',l:'Intérêts (€)',t:'number'},{k:'avail',l:'Accès',t:'sel',o:['Immédiate','Sous 24h','48-72h','1 semaine']},{k:'date',l:'Date',t:'date'},{k:'notes',l:'Notes',t:'text'}],
+};
+function openEdit(pid,i){
+  editCtx={pid,idx:i};
+  const it=S[pid][i];
+  document.getElementById('modal-ttl').textContent='Modifier — '+M[pid].l;
+  let h='<div class="modal-grid">';
+  FIELDS[pid].forEach(f=>{
+    const v=(it[f.k]!=null?it[f.k]:'');
+    const inp=f.t==='sel'
+      ?`<select id="me-${f.k}">${f.o.map(o=>`<option${v===o?' selected':''}>${o}</option>`).join('')}</select>`
+      :`<input type="${f.t}" id="me-${f.k}" value="${v}">`;
+    h+=`<div class="field"><label>${f.l}</label>${inp}</div>`;
+  });
+  h+='</div>';
+  document.getElementById('modal-body').innerHTML=h;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function saveEdit(){
+  const{pid,idx}=editCtx;if(!pid)return;
+  FIELDS[pid].forEach(f=>{const e=document.getElementById('me-'+f.k);if(e)S[pid][idx][f.k]=e.value;});
+  save();renderPid(pid);renderOverview();closeModal();toast('✅ Sauvegardé !');
+}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+
+/* ═══════════════════════════════════════════════════════════
+   RATE CONTROLS
+═══════════════════════════════════════════════════════════ */
+function onGR(v){
+  const val=Math.max(0,parseFloat(v)||0);S.globalRate=val;save();
+  const d=document.getElementById('gr-disp');if(d)d.textContent=val.toFixed(1)+'%';
+  const r=document.getElementById('gr-range');if(r&&r!==document.activeElement)r.value=Math.min(30,val);
+  const i=document.getElementById('gr-inp');if(i&&i!==document.activeElement)i.value=val;
+  renderProjections();
+}
+function onSR(pid,v){
+  const val=Math.max(0,parseFloat(v)||0);
+  if(!S.subRates)S.subRates={};S.subRates[pid]=val;save();
+  const d=document.getElementById(pid+'-rd');if(d)d.textContent=val.toFixed(1)+'%';
+  const r=document.getElementById(pid+'-rr');if(r&&r!==document.activeElement)r.value=Math.min(pid==='binance'?50:30,val);
+  const i=document.getElementById(pid+'-ri');if(i&&i!==document.activeElement)i.value=val;
+  renderSubProj(pid);
+}
+function renderProjections(){
+  const{cur}=cAll();const ar=(S.globalRate||8)/100;
+  [{id:'p1',y:1},{id:'p3',y:3},{id:'p5',y:5},{id:'p10',y:10},{id:'p20',y:20},{id:'p30',y:30},{id:'ov-proj1',y:1}].forEach(({id,y})=>{
+    const el=document.getElementById(id);if(el)el.textContent=fc(cur*Math.pow(1+ar,y));
+  });
+}
+function renderSubProj(pid){
+  const rate=(S.subRates&&S.subRates[pid]!=null)?S.subRates[pid]:10;
+  const ar=rate/100;let base=0;
+  if(pid==='briks')S.briks.forEach(it=>{base+=(parseFloat(it.inv)||0)+(parseFloat(it.recv)||0);});
+  else if(pid==='pbrique')S.pbrique.forEach(it=>{base+=(parseFloat(it.inv)||0)+(parseFloat(it.recv)||0);});
+  else if(pid==='ibkr'){S.ibkr.forEach(it=>{const q=parseFloat(it.qty)||0,e=parseFloat(it.entry)||0,p=parseFloat(it.pnl)||0;base+=q*e+p;});}
+  else if(pid==='binance')S.binance.forEach(it=>{base+=parseFloat(it.curval)||0;});
+  [{id:pid+'-p5',y:5},{id:pid+'-p10',y:10},{id:pid+'-p20',y:20},{id:pid+'-p30',y:30}].forEach(({id,y})=>{
+    const el=document.getElementById(id);if(el)el.textContent=fc(base*Math.pow(1+ar,y));
+  });
+}
+function setIBKRCapital(){
+  S.ibkrCapital=parseFloat(document.getElementById('ibkr-capital-inp').value)||0;
+  S.ibkrCapitalCur=document.getElementById('ibkr-capital-cur').value||'CHF';
+  save();renderIbkr();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER DISPATCH
+═══════════════════════════════════════════════════════════ */
+function renderPid(pid){
+  if(pid==='briks')renderBriks();
+  else if(pid==='pbrique')renderPbrique();
+  else if(pid==='ibkr')renderIbkr();
+  else if(pid==='binance')renderBinance();
+  else if(pid==='secours')renderSecours();
+  else if(pid==='fond')renderFond();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PATRIMOINE INDIVIDUEL WIDGET (Briks/PBrique)
+═══════════════════════════════════════════════════════════ */
+function renderPatrimoineCards(pid,containerId){
+  const el=document.getElementById(containerId);if(!el)return;
+  const items=S[pid]||[];
+  if(!items.length){el.innerHTML='';return;}
+  const color=M[pid].c;
+  let totalInv=0,totalRecv=0,totalExp=0;
+  items.forEach(it=>{totalInv+=parseFloat(it.inv)||0;totalRecv+=parseFloat(it.recv)||0;totalExp+=revExp(it.inv,it.rate,it.dur);});
+  const totalGain=totalRecv;
+  const roi=totalInv>0?(totalGain/totalInv*100).toFixed(2):0;
+  el.innerHTML=`
+    <div class="stat-card" style="--at:${color}">
+      <div class="stat-lbl">Capital total investi</div>
+      <div class="stat-val" style="color:${color}">${fc(totalInv)}</div>
+      <div class="stat-sub">${items.length} projet${items.length>1?'s':''} actif${items.length>1?'s':''}</div>
+    </div>
+    <div class="stat-card" style="--at:var(--green)">
+      <div class="stat-lbl">Revenus reçus à ce jour</div>
+      <div class="stat-val c-green">${fc(totalRecv)}</div>
+      <div class="stat-sub">cash encaissé</div>
+    </div>
+    <div class="stat-card" style="--at:var(--amber)">
+      <div class="stat-lbl">Revenus attendus (total)</div>
+      <div class="stat-val c-amber">${fc(totalExp)}</div>
+      <div class="stat-sub">sur toutes les durées</div>
+    </div>
+    <div class="stat-card" style="--at:${parseFloat(roi)>=0?'var(--green)':'var(--red)'}">
+      <div class="stat-lbl">ROI global</div>
+      <div class="stat-val" style="color:${parseFloat(roi)>=0?'var(--green)':'var(--red)'}">${sgn(parseFloat(roi))}${roi}%</div>
+      <div class="stat-sub">reçu / investi</div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BRIKS
+═══════════════════════════════════════════════════════════ */
+function renderBriks(){
+  renderPatrimoineCards('briks','briks-patrimoine');
+  const tb=document.getElementById('briks-tbody');
+  if(!S.briks.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">🧱</div>Aucun projet</div></td></tr>';bCh();renderSubProj('briks');return;}
+  tb.innerHTML=S.briks.map((it,i)=>{
+    const inv=parseFloat(it.inv)||0,recv=parseFloat(it.recv)||0;
+    const exp=revExp(it.inv,it.rate,it.dur);
+    const roi=inv>0?(recv/inv*100).toFixed(2):0;
+    const sc=it.status==='Terminé'?'td-pos':it.status==='En attente'?'td-muted':'c-amber';
+    return `<tr>
+      <td class="td-name">${it.name||'—'}</td>
+      <td>${fc(inv)}</td>
+      <td class="td-pos">${it.rate||'—'}%</td>
+      <td class="td-muted">${it.dur||'—'} mois</td>
+      <td class="td-pos">${fc(recv)}</td>
+      <td class="td-muted">≈ ${fc(exp)}</td>
+      <td class="${cls(recv)}">${sgn(recv)}${fc(recv)}</td>
+      <td class="${cls(parseFloat(roi))}">${sgn(parseFloat(roi))}${roi}%</td>
+      <td class="${sc}">${it.status||'En cours'}</td>
+      ${aBtn('briks',i)}
+    </tr>`;
+  }).join('');
+  bCh();renderSubProj('briks');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PBRIQUE
+═══════════════════════════════════════════════════════════ */
+function renderPbrique(){
+  renderPatrimoineCards('pbrique','pbrique-patrimoine');
+  const tb=document.getElementById('pbrique-tbody');
+  if(!S.pbrique.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">🏗️</div>Aucun projet</div></td></tr>';pbCh();renderSubProj('pbrique');return;}
+  tb.innerHTML=S.pbrique.map((it,i)=>{
+    const inv=parseFloat(it.inv)||0,recv=parseFloat(it.recv)||0;
+    const exp=revExp(it.inv,it.rate,it.dur);
+    const roi=inv>0?(recv/inv*100).toFixed(2):0;
+    const sc=it.status==='Remboursé'?'td-pos':it.status==='En retard'?'td-neg':'c-amber';
+    return `<tr>
+      <td class="td-name">${it.name||'—'}</td>
+      <td>${fc(inv)}</td>
+      <td class="td-pos">${it.rate||'—'}%</td>
+      <td class="td-muted">${it.dur||'—'} mois</td>
+      <td class="td-pos">${fc(recv)}</td>
+      <td class="td-muted">≈ ${fc(exp)}</td>
+      <td class="${cls(recv)}">${sgn(recv)}${fc(recv)}</td>
+      <td class="${cls(parseFloat(roi))}">${sgn(parseFloat(roi))}${roi}%</td>
+      <td class="${sc}">${it.status||'En cours'}</td>
+      ${aBtn('pbrique',i)}
+    </tr>`;
+  }).join('');
+  pbCh();renderSubProj('pbrique');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   IBKR — affichage style IBKR app
+═══════════════════════════════════════════════════════════ */
+function renderIbkr(){
+  // capital input sync
+  const ci=document.getElementById('ibkr-capital-inp');if(ci&&document.activeElement!==ci)ci.value=S.ibkrCapital||'';
+  const cc=document.getElementById('ibkr-capital-cur');if(cc)cc.value=S.ibkrCapitalCur||'CHF';
+
+  let tcur=0,tinv=0;
+  S.ibkr.forEach(it=>{
+    const q=parseFloat(it.qty)||0,e=parseFloat(it.entry)||0,p=parseFloat(it.pnl)||0;
+    tinv+=q*e;tcur+=q*e+p;
+  });
+  const gain=tcur-tinv;
+  const capital=parseFloat(S.ibkrCapital)||tcur;
+  const perfPct=capital>0?(gain/capital*100).toFixed(2):0;
+  const cur=S.ibkrCapitalCur||'CHF';
+
+  // Hero blocks
+  const v=document.getElementById('ibkr-val-disp');if(v)v.textContent=fc(tcur,cur);
+  const gd=document.getElementById('ibkr-gain-disp');
+  if(gd){
+    gd.textContent=`${sgn(gain)}${fc(gain,cur)} (${sgn(parseFloat(perfPct))}${perfPct}%) depuis le début`;
+    gd.style.color=gain>=0?'var(--green)':'var(--red)';
+  }
+  const pf=document.getElementById('ibkr-perf-disp');
+  if(pf){pf.textContent=`${sgn(parseFloat(perfPct))}${perfPct}%`;pf.className='stat-val '+(gain>=0?'c-green':'c-red');}
+
+  const liq=parseFloat(S.liq?.ibkr)||0;
+  const liqCur=S.liqCur?.ibkr||'CHF';
+  const hv=document.getElementById('ibkr-hero-v');if(hv)hv.textContent=fc(tcur,cur);
+  const hg=document.getElementById('ibkr-hero-g');
+  if(hg){hg.textContent=`${sgn(gain)}${fc(gain,cur)} (${tinv>0?sgn(gain/tinv*100)+(gain/tinv*100).toFixed(2)+'%':'—'})`;hg.className='stat-sub '+(gain>=0?'c-green':'c-red');}
+  const ld=document.getElementById('ibkr-liq-d');if(ld)ld.textContent=fc(liq,liqCur);
+  const lcd=document.getElementById('ibkr-liq-cd');if(lcd)lcd.textContent='cash en '+liqCur;
+  const td=document.getElementById('ibkr-total-d');if(td)td.textContent=fc(tcur+liq,cur);
+  const li=document.getElementById('ibkr-liq-inp');if(li&&document.activeElement!==li)li.value=liq||'';
+  const lc=document.getElementById('ibkr-liq-cur');if(lc)lc.value=liqCur;
+
+  // IBKR style positions
+  const wrap=document.getElementById('ibkr-pos-display');
+  if(!wrap)return;
+  if(!S.ibkr.length){
+    wrap.innerHTML='<div class="card"><div class="empty"><div class="empty-ico">📈</div>Aucune position — ajoutez vos positions ci-dessus</div></div>';
+    renderSubProj('ibkr');return;
+  }
+  const pos=S.ibkr.filter(it=>parseFloat(it.pnl)||0>=0);
+  const neg=S.ibkr.filter(it=>(parseFloat(it.pnl)||0)<0);
+  function posGroup(items,color,bg){
+    if(!items.length)return'';
+    return `<div style="background:${bg};border:1px solid ${color}22;border-radius:var(--radius);overflow:hidden;margin-bottom:10px">
+      ${items.map((it,_i)=>{
+        const idx=S.ibkr.indexOf(it);
+        const pnl=parseFloat(it.pnl)||0;
+        const qty=parseFloat(it.qty)||0;
+        const cur2=it.currency||'CHF';
+        const dayvar=parseFloat(it.dayvar)||0;
+        const curPrice=parseFloat(it.current)||0;
+        return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:${color}">${it.tick||'—'} <span style="font-size:10px;font-weight:400;color:var(--muted2)">— ${it.fullname||''}</span></div>
+            <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);margin-top:2px">${qty} actions · px moyen ${fc(it.entry,cur2)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:700;color:${pnl>=0?'var(--green)':'var(--red)'}">${sgn(pnl)}${fcN(pnl)}</div>
+            <div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">${qty} actions</div>
+          </div>
+          <div style="text-align:center;min-width:80px">
+            <div style="font-size:14px;font-weight:700;background:${curPrice>0?(dayvar>=0?'rgba(0,200,150,.15)':'rgba(255,69,96,.15)'):'var(--bg4)'};color:${dayvar>=0?'var(--green)':'var(--red)'};border-radius:6px;padding:3px 10px">${curPrice>0?curPrice.toFixed(2):'—'}</div>
+            <div style="font-size:10px;color:${dayvar>=0?'var(--green)':'var(--red)'};font-family:var(--mono);margin-top:2px">${sgn(dayvar)}${dayvar.toFixed(2)}%</div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <button class="bi be" onclick="openEdit('ibkr',${idx})">✏️</button>
+            <button class="bi bd" onclick="del('ibkr',${idx})">🗑</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  wrap.innerHTML=posGroup(pos.length?S.ibkr.filter(it=>(parseFloat(it.pnl)||0)>=0):[],'var(--green)','rgba(0,200,150,0.04)')+
+                 posGroup(S.ibkr.filter(it=>(parseFloat(it.pnl)||0)<0),'var(--red)','rgba(255,69,96,0.04)');
+  renderSubProj('ibkr');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BINANCE — affichage style Binance app
+═══════════════════════════════════════════════════════════ */
+function renderBinance(){
+  const usdtChf=parseFloat(document.getElementById('bn-usdt-chf')?.value)||parseFloat(S.bnUsdtChf)||0.98;
+  S.bnUsdtChf=usdtChf;
+
+  let tcur=0,gpToday=0;
+  S.binance.forEach(it=>{tcur+=parseFloat(it.curval)||0;gpToday+=parseFloat(it.gpday)||0;});
+  const gpPct=tcur>0?(gpToday/(tcur-gpToday)*100).toFixed(2):0;
+  const liq=parseFloat(S.liq?.binance)||0;
+  const liqCur=S.liqCur?.binance||'USDT';
+
+  // Top displays
+  const vd=document.getElementById('bn-val-disp');if(vd)vd.textContent=`${tcur.toFixed(2)} USDT`;
+  const vc=document.getElementById('bn-val-chf');if(vc)vc.textContent=`≈ CHF ${(tcur*usdtChf).toFixed(2)}`;
+  const gpt=document.getElementById('bn-gp-today');
+  if(gpt){gpt.textContent=`${sgn(gpToday)}${gpToday.toFixed(2)} USDT (${sgn(parseFloat(gpPct))}${gpPct}%)`;gpt.className='stat-val '+(gpToday>=0?'c-green':'c-red');}
+  const hv=document.getElementById('bn-hero-v');if(hv)hv.textContent=`${tcur.toFixed(2)} USDT`;
+  const hg=document.getElementById('bn-hero-g');if(hg){hg.textContent=`${sgn(gpToday)}${gpToday.toFixed(2)} USDT aujourd'hui`;hg.className='stat-sub '+(gpToday>=0?'c-green':'c-red');}
+  const ld=document.getElementById('bn-liq-d');if(ld)ld.textContent=`${liq} ${liqCur}`;
+  const td=document.getElementById('bn-total-d');if(td)td.textContent=`${(tcur+liq).toFixed(2)} USDT`;
+  const li=document.getElementById('bn-liq-inp');if(li&&document.activeElement!==li)li.value=liq||'';
+  const lc=document.getElementById('bn-liq-cur');if(lc)lc.value=liqCur;
+
+  // Binance-style position cards
+  const wrap=document.getElementById('bn-pos-display');
+  if(!wrap)return;
+  if(!S.binance.length){
+    wrap.innerHTML='<div class="card"><div class="empty"><div class="empty-ico">🔶</div>Aucune position — ajoutez vos cryptos ci-dessus</div></div>';
+    renderSubProj('binance');return;
+  }
+  wrap.innerHTML=S.binance.map((it,i)=>{
+    const cv=parseFloat(it.curval)||0;
+    const gpd=parseFloat(it.gpday)||0;
+    const gpdp=parseFloat(it.gpdaypct)||0;
+    const em=parseFloat(it.entry)||0;
+    return `<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg3)">
+      <div style="width:38px;height:38px;border-radius:50%;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--binance)">${(it.sym||'?').slice(0,2)}</div>
+      <div>
+        <div style="font-size:14px;font-weight:700">${it.sym||'—'} <span style="font-size:10px;color:var(--muted2)">${it.fullname||''}</span></div>
+        <div style="font-size:10px;color:${gpd>=0?'var(--green)':'var(--red)'};font-family:var(--mono);margin-top:2px">G&P du jour ${sgn(gpd)}${gpd.toFixed(2)} USDT (${sgn(gpdp)}${gpdp.toFixed(2)}%)</div>
+        ${em>0?`<div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">Prix moyen ${em.toLocaleString('fr-FR',{maximumFractionDigits:4})} USDT</div>`:''}
+        ${it.type&&it.type!=='Spot'?`<span class="tag tag-binance" style="margin-top:4px;display:inline-block">${it.type}</span>`:''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:700">${parseFloat(it.qty)?parseFloat(it.qty).toLocaleString('fr-FR',{maximumFractionDigits:8}):''}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--binance)">${cv.toFixed(2)} USDT</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="bi be" onclick="openEdit('binance',${i})">✏️</button>
+        <button class="bi bd" onclick="del('binance',${i})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+  renderSubProj('binance');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECOURS / FOND
+═══════════════════════════════════════════════════════════ */
+function renderSecours(){
+  const tb=document.getElementById('secours-tbody');
+  if(!S.secours.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-ico">🏦</div>Aucun compte</div></td></tr>';}
+  else tb.innerHTML=S.secours.map((it,i)=>{
+    const ac=it.avail==='Immédiate'?'td-pos':it.avail==='Bloqué'?'td-neg':'td-muted';
+    return `<tr><td class="td-name">${it.name||'—'}</td><td class="td-muted">${it.bank||'—'}</td><td><span class="tag tag-secours">${it.type||'Épargne'}</span></td><td style="color:var(--secours);font-weight:600">${fc(it.bal)}</td><td class="td-pos">${parseFloat(it.rate)>0?it.rate+'%':'—'}</td><td class="td-pos">${parseFloat(it.irecv)>0?'+'+fc(it.irecv):'—'}</td><td class="${ac}">${it.avail||'Immédiate'}</td>${aBtn('secours',i)}</tr>`;
+  }).join('');
+  updateScHero();
+}
+function updateScHero(){
+  let bal=0,int=0;S.secours.forEach(it=>{bal+=parseFloat(it.bal)||0;int+=parseFloat(it.irecv)||0;});
+  document.getElementById('sc-total').textContent=fc(bal);
+  document.getElementById('sc-int').textContent='+'+fc(int);
+  const goal=parseFloat(S.secoursGoal)||0;
+  if(goal>0){
+    const pct=Math.min(100,bal/goal*100);
+    document.getElementById('sc-goal-d').textContent=fc(goal);
+    document.getElementById('sc-bar').style.width=pct+'%';
+    document.getElementById('sc-bar-txt').textContent=pct.toFixed(1)+'% atteint'+(bal>=goal?' ✅':' — manque '+fc(goal-bal));
+  }
+  scCh(S.secours,bal,goal);
+}
+function renderFond(){
+  const tb=document.getElementById('fond-tbody');
+  if(!S.fond.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-ico">🛡️</div>Aucun poste</div></td></tr>';}
+  else tb.innerHTML=S.fond.map((it,i)=>{
+    const amt=parseFloat(it.amt)||0,ir=parseFloat(it.irecv)||0;
+    const ac=it.avail==='Immédiate'?'td-pos':'td-muted';
+    return `<tr><td class="td-name">${it.name||'—'}</td><td class="td-muted">${it.bank||'—'}</td><td style="color:var(--fond);font-weight:600">${fc(amt)}</td><td class="td-pos">${parseFloat(it.rate)>0?it.rate+'%':'—'}</td><td class="td-pos">${ir>0?'+'+fc(ir):'—'}</td><td style="font-weight:600">${fc(amt+ir)}</td><td class="${ac}">${it.avail||'Immédiate'}</td>${aBtn('fond',i)}</tr>`;
+  }).join('');
+  updateFdHero();
+}
+function updateFdHero(){
+  let amt=0,int=0;S.fond.forEach(it=>{amt+=parseFloat(it.amt)||0;int+=parseFloat(it.irecv)||0;});
+  document.getElementById('fd-total').textContent=fc(amt);
+  document.getElementById('fd-int').textContent='+'+fc(int);
+  const goal=parseFloat(S.fondGoal)||0;
+  if(goal>0){
+    const pct=Math.min(100,amt/goal*100);
+    document.getElementById('fd-goal-d').textContent=fc(goal);
+    document.getElementById('fd-bar').style.width=pct+'%';
+    document.getElementById('fd-bar-txt').textContent=pct.toFixed(1)+'% atteint'+(amt>=goal?' ✅':' — manque '+fc(goal-amt));
+  }
+  fdCh(S.fond,amt,goal);
+}
+function setGoal(t){
+  const v=parseFloat(document.getElementById(t==='secours'?'sc-goal-inp':'fd-goal-inp').value)||0;
+  if(t==='secours'){S.secoursGoal=v;save();updateScHero();}
+  else{S.fondGoal=v;save();updateFdHero();}
+}
+function setLiq(pid){
+  if(!S.liq)S.liq={ibkr:0,binance:0,briks:0,pbrique:0};
+  if(!S.liqCur)S.liqCur={ibkr:'CHF',binance:'USDT',briks:'EUR',pbrique:'EUR'};
+  const iMap={ibkr:'ibkr-liq-inp',binance:'bn-liq-inp',briks:'briks-liq-inp',pbrique:'pbrique-liq-inp'};
+  const cMap={ibkr:'ibkr-liq-cur',binance:'bn-liq-cur',briks:'briks-liq-cur',pbrique:'pbrique-liq-cur'};
+  const el=document.getElementById(iMap[pid]);if(!el)return;
+  const ce=document.getElementById(cMap[pid]);
+  S.liq[pid]=parseFloat(el.value)||0;
+  if(ce)S.liqCur[pid]=ce.value;
+  save();renderOverview();
+  if(pid==='ibkr')renderIbkr();
+  if(pid==='binance')renderBinance();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════════════════════════ */
+function addHistory(){
+  const date=document.getElementById('h-date').value;
+  const val=document.getElementById('h-val').value;
+  const note=document.getElementById('h-note').value;
+  if(!date||!val){toast('⚠️ Date et valeur requises');return;}
+  if(!S.history)S.history=[];
+  S.history.push({date,value:parseFloat(val),note});
+  S.history.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  save();renderOverview();
+  document.getElementById('h-val').value='';
+  document.getElementById('h-note').value='';
+  toast('✅ Point ajouté !');
+}
+function renderHistoryLog(){
+  const el=document.getElementById('h-log');if(!el)return;
+  if(!S.history?.length){el.innerHTML='<div class="empty" style="padding:14px"><div class="empty-ico">📅</div>Aucun point d\'historique</div>';return;}
+  const s=[...S.history].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  el.innerHTML=s.map(h=>{
+    const oi=S.history.findIndex(x=>x.date===h.date&&x.value===h.value);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;gap:10px">
+      <span style="color:var(--muted2);font-family:var(--mono);min-width:76px">${new Date(h.date).toLocaleDateString('fr-FR')}</span>
+      <span style="color:var(--cyan);font-weight:700;font-family:var(--mono)">${fc(h.value)}</span>
+      <span style="color:var(--muted2);flex:1">${h.note||''}</span>
+      <button onclick="delH(${oi})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:0 3px">×</button>
+    </div>`;
+  }).join('');
+}
+function delH(i){if(i<0||i>=(S.history||[]).length)return;S.history.splice(i,1);save();renderOverview();}
+
+/* ═══════════════════════════════════════════════════════════
+   OVERVIEW
+═══════════════════════════════════════════════════════════ */
+function renderOverview(){
+  const{inv,cur,gain,bd,pos}=cAll();
+  const pct=inv>0?gain/inv*100:0;
+  const totalLiq=getTotalLiq();
+  const rate=S.globalRate!=null?S.globalRate:8;
+
+  const T=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  T('ov-total',cur.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €');
+  T('ov-inv',fc(inv));T('ov-liq',fc(totalLiq));
+  T('ov-liqs',fc(totalLiq));T('ov-net',fc(cur+totalLiq));T('ov-pos',pos);
+
+  const ge=document.getElementById('ov-gain');
+  if(ge){ge.textContent=`${sgn(gain)}${fc(gain)} — ${sgn(pct)}${pct.toFixed(2)}%`;ge.style.color=gain>=0?'var(--green)':'var(--red)';}
+  const g2=document.getElementById('ov-gain2');
+  if(g2){g2.textContent=`${sgn(gain)}${fc(gain)}`;g2.className='stat-val '+(gain>=0?'c-green':'c-red');}
+  T('ov-pct',`${sgn(pct)}${pct.toFixed(2)}%`);
+
+  let bp=null,bp2=-Infinity;
+  Object.entries(bd).forEach(([p,r])=>{if(r.inv>0){const pp=r.gain/r.inv*100;if(pp>bp2){bp2=pp;bp=p;}}});
+  if(bp){T('ov-best',M[bp].l);T('ov-bestpct',`+${bp2.toFixed(2)}%`);}
+
+  renderProjections();
+
+  // rate ui sync
+  const gr=document.getElementById('gr-range');if(gr&&document.activeElement!==gr)gr.value=Math.min(30,rate);
+  const gi=document.getElementById('gr-inp');if(gi&&document.activeElement!==gi)gi.value=rate;
+  const gd=document.getElementById('gr-disp');if(gd)gd.textContent=parseFloat(rate).toFixed(1)+'%';
+
+  // Platform bars
+  document.getElementById('pb-list').innerHTML=Object.entries(bd).map(([pid,r])=>{
+    const p=cur>0?(r.cur/cur*100):0;
+    const gp=r.inv>0?(r.gain/r.inv*100).toFixed(1):0;
+    return `<div class="pb-row">
+      <div class="pb-name" style="color:${M[pid].c}">${M[pid].l}</div>
+      <div class="pb-track"><div class="pb-fill" style="width:${p}%;background:${M[pid].c}"></div></div>
+      <div class="pb-pct">${p.toFixed(0)}%</div>
+      <div class="pb-perf" style="color:${parseFloat(gp)>=0?'var(--green)':'var(--red)'}">${parseFloat(gp)>=0?'+':''}${gp}%</div>
+    </div>`;
+  }).join('');
+
+  // All positions table
+  const rows=[];
+  Object.entries(M).forEach(([pid,m])=>{
+    (S[pid]||[]).forEach((it,i)=>{
+      let name='—',pi=0,pc2=0;
+      if(pid==='ibkr'){name=(it.tick||'—')+(it.fullname?' — '+it.fullname:'');const q=parseFloat(it.qty)||0,e=parseFloat(it.entry)||0,p=parseFloat(it.pnl)||0;pi=q*e;pc2=q*e+p;}
+      else if(pid==='binance'){name=(it.sym||'—')+(it.fullname?' — '+it.fullname:'');pi=(parseFloat(it.qty)||0)*(parseFloat(it.entry)||0);pc2=parseFloat(it.curval)||0;}
+      else if(pid==='briks'||pid==='pbrique'){name=it.name||'—';pi=parseFloat(it.inv)||0;pc2=pi+(parseFloat(it.recv)||0);}
+      else if(pid==='secours'){name=(it.name||'—')+(it.bank?' — '+it.bank:'');pi=parseFloat(it.bal)||0;pc2=pi+(parseFloat(it.irecv)||0);}
+      else if(pid==='fond'){name=(it.name||'—')+(it.bank?' — '+it.bank:'');pi=parseFloat(it.amt)||0;pc2=pi+(parseFloat(it.irecv)||0);}
+      const gv=pc2-pi,gp2=pi>0?(gv/pi*100).toFixed(2):0;
+      rows.push(`<tr>
+        <td class="td-name">${name}</td>
+        <td><span class="tag tag-${pid}">${m.l}</span></td>
+        <td>${fc(pi)}</td>
+        <td>${fc(pc2)}</td>
+        <td class="${cls(gv)}">${sgn(gv)}${fc(gv)}</td>
+        <td class="${cls(parseFloat(gp2))}">${sgn(parseFloat(gp2))}${gp2}%</td>
+        <td><div style="display:flex;gap:4px">
+          <button class="bi be" onclick="openEdit('${pid}',${i})">✏️</button>
+          <button class="bi bd" onclick="del('${pid}',${i})">🗑</button>
+        </div></td>
+      </tr>`);
+    });
+  });
+  const tb=document.getElementById('all-tbody');
+  if(tb)tb.innerHTML=rows.length?rows.join(''):'<tr><td colspan="7"><div class="empty"><div class="empty-ico">📊</div>Ajoutez des positions dans les onglets</div></td></tr>';
+
+  ovCharts(bd,inv,cur,rate/100);
+  renderHistoryLog();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART UTILS
+═══════════════════════════════════════════════════════════ */
+const CDK={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{
+    legend:{labels:{color:'#6b7f99',font:{size:10,family:'JetBrains Mono,monospace'},padding:8,boxWidth:9}},
+    tooltip:{backgroundColor:'#0d1117',borderColor:'rgba(255,255,255,0.06)',borderWidth:1,titleFont:{size:11},bodyFont:{size:11},padding:9,callbacks:{}}
+  }
+};
+const GS=()=>({ticks:{color:'#4a5a72',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'rgba(255,255,255,0.04)'}});
+function mkCtx(id){
+  if(CH[id]){try{CH[id].destroy();}catch(e){}delete CH[id];}
+  const el=document.getElementById(id);return el?el.getContext('2d'):null;
+}
+function gaugeChart(ctx,pct,color){
+  if(!ctx)return;const id=ctx.canvas.id;
+  CH[id]=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:['Atteint','Restant'],datasets:[{data:[pct,100-pct],backgroundColor:[color+'cc','rgba(255,255,255,0.04)'],borderColor:[color,'rgba(255,255,255,0.03)'],borderWidth:2}]},
+    options:{...CDK,cutout:'72%',plugins:{...CDK.plugins,legend:{display:false}}},
+    plugins:[{id:'gc',afterDraw(ch){
+      const{ctx:c,chartArea:{left,top,right,bottom}}=ch;
+      const cx=(left+right)/2,cy=(top+bottom)/2;
+      c.save();c.textAlign='center';c.textBaseline='middle';
+      c.fillStyle=color;c.font='bold 20px Space Grotesk,system-ui';
+      c.fillText(pct.toFixed(0)+'%',cx,cy-6);
+      c.fillStyle='#4a5a72';c.font='9px JetBrains Mono,monospace';
+      c.fillText(pct>=100?'✅ Objectif!':'de l\'objectif',cx,cy+11);
+      c.restore();
+    }}]
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OVERVIEW CHARTS
+═══════════════════════════════════════════════════════════ */
+function ovCharts(bd,inv,cur,ar){
+  const pids=Object.keys(M),labels=pids.map(p=>M[p].l),colors=pids.map(p=>M[p].c);
+  const invD=pids.map(p=>bd[p].inv),curD=pids.map(p=>bd[p].cur);
+  const gPct=pids.map(p=>bd[p].inv>0?+(bd[p].gain/bd[p].inv*100).toFixed(2):0);
+
+  // Evolution
+  const ec=mkCtx('ch-evol');
+  if(ec){
+    const hist=[...(S.history||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const el2=hist.length?hist.map(h=>new Date(h.date).toLocaleDateString('fr-FR',{month:'short',year:'2-digit'})):['Capital','Aujourd\'hui'];
+    const ev=hist.length?hist.map(h=>parseFloat(h.value)):[inv,cur];
+    if(ev.length===1){el2.push('Aujourd\'hui');ev.push(cur);}
+    CH['ch-evol']=new Chart(ec,{type:'line',data:{labels:el2,datasets:[{label:'Patrimoine (€)',data:ev,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.05)',fill:true,tension:.4,pointBackgroundColor:'#00d4ff',pointRadius:4,borderWidth:2}]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+  }
+
+  // Pie
+  const pc=mkCtx('ch-pie');
+  if(pc)CH['ch-pie']=new Chart(pc,{type:'doughnut',data:{labels,datasets:[{data:curD.map(v=>Math.max(0,v)||0.001),backgroundColor:colors.map(c=>c+'aa'),borderColor:colors,borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'60%'}});
+
+  // Investi vs Valeur
+  const ic=mkCtx('ch-iv');
+  if(ic)CH['ch-iv']=new Chart(ic,{type:'bar',data:{labels,datasets:[{label:'Investi',data:invD,backgroundColor:'rgba(74,90,114,0.5)',borderRadius:4},{label:'Valeur',data:curD,backgroundColor:colors.map(c=>c+'88'),borderRadius:4}]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+
+  // Radar
+  const rc=mkCtx('ch-radar');
+  if(rc)CH['ch-radar']=new Chart(rc,{type:'radar',data:{labels,datasets:[{label:'% Gain',data:gPct,backgroundColor:'rgba(0,212,255,0.06)',borderColor:'#00d4ff',pointBackgroundColor:'#00d4ff',pointRadius:3,borderWidth:2}]},options:{...CDK,scales:{r:{ticks:{color:'#4a5a72',font:{size:9},backdropColor:'transparent'},grid:{color:'rgba(255,255,255,0.04)'},pointLabels:{color:'#6b7f99',font:{size:9}},angleLines:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  // Monthly
+  const mc=mkCtx('ch-monthly');
+  if(mc){
+    const mn=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    const md=new Array(12).fill(0);
+    const h=[...(S.history||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    for(let i=1;i<h.length;i++)md[new Date(h[i].date).getMonth()]+=parseFloat(h[i].value)-parseFloat(h[i-1].value);
+    if(!h.length&&cur-inv!==0)md[new Date().getMonth()]=cur-inv;
+    CH['ch-monthly']=new Chart(mc,{type:'bar',data:{labels:mn,datasets:[{label:'Variation (€)',data:md,backgroundColor:md.map(v=>v>=0?'rgba(0,200,150,0.6)':'rgba(255,69,96,0.6)'),borderRadius:4}]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+  }
+
+  // Projection
+  const prjc=mkCtx('ch-proj');
+  if(prjc){
+    const yrs=[0,1,2,3,5,7,10,15,20,25,30];
+    const ar15=ar*1.5,ar05=ar*0.5;
+    CH['ch-proj']=new Chart(prjc,{type:'line',data:{labels:yrs.map(y=>y?'+'+y+'a':'Auj.'),datasets:[
+      {label:'Optimiste',data:yrs.map(y=>cur*Math.pow(1+ar15,y)),borderColor:'#00c896',borderDash:[3,3],fill:false,tension:.4,pointRadius:2,borderWidth:1.5},
+      {label:'Moyen',data:yrs.map(y=>cur*Math.pow(1+ar,y)),borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.05)',fill:true,tension:.4,pointRadius:3,borderWidth:2},
+      {label:'Pessimiste',data:yrs.map(y=>cur*Math.pow(1+ar05,y)),borderColor:'#f59e0b',borderDash:[3,3],fill:false,tension:.4,pointRadius:2,borderWidth:1.5},
+    ]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BRIKS CHARTS
+═══════════════════════════════════════════════════════════ */
+function bCh(){
+  const its=S.briks;
+  const cols=['#f97316','#fb923c','#ea580c','#fed7aa','#c2410c','#9a3412','#7c2d12','#fdba74'].slice(0,Math.max(its.length,1));
+  const pc=mkCtx('ch-bpie');
+  if(pc)CH['ch-bpie']=new Chart(pc,{type:'doughnut',data:{labels:its.length?its.map(it=>it.name||'—'):['Aucun'],datasets:[{data:its.length?its.map(it=>parseFloat(it.inv)||0.001):[1],backgroundColor:cols.map(c=>c+'aa'),borderColor:cols,borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'58%',plugins:{...CDK.plugins,legend:{labels:{...CDK.plugins.legend.labels,font:{size:9}}}}}});
+  if(!its.length)return;
+  const rv=mkCtx('ch-brv');
+  if(rv)CH['ch-brv']=new Chart(rv,{type:'bar',data:{labels:its.map(it=>(it.name||'—').slice(0,12)+'…'),datasets:[{label:'Reçus (€)',data:its.map(it=>parseFloat(it.recv)||0),backgroundColor:'rgba(0,200,150,0.6)',borderRadius:4},{label:'Attendus (€)',data:its.map(it=>revExp(it.inv,it.rate,it.dur)),backgroundColor:'rgba(249,115,22,0.4)',borderRadius:4}]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+  const ri=mkCtx('ch-broi');
+  const rois=its.map(it=>{const i=parseFloat(it.inv)||0,r=parseFloat(it.recv)||0;return i>0?+(r/i*100).toFixed(2):0;});
+  if(ri)CH['ch-broi']=new Chart(ri,{type:'bar',data:{labels:its.map(it=>(it.name||'—').slice(0,12)+'…'),datasets:[{label:'ROI %',data:rois,backgroundColor:rois.map(r=>r>=0?'rgba(0,200,150,0.65)':'rgba(255,69,96,0.65)'),borderRadius:4}]},options:{...CDK,indexAxis:'y',scales:{x:GS(),y:GS()}}});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PBRIQUE CHARTS
+═══════════════════════════════════════════════════════════ */
+function pbCh(){
+  const its=S.pbrique;
+  const cols=['#a78bfa','#8b5cf6','#7c3aed','#c4b5fd','#6d28d9','#5b21b6','#ddd6fe','#ede9fe'].slice(0,Math.max(its.length,1));
+  const pc=mkCtx('ch-pbpie');
+  if(pc)CH['ch-pbpie']=new Chart(pc,{type:'doughnut',data:{labels:its.length?its.map(it=>it.name||'—'):['Aucun'],datasets:[{data:its.length?its.map(it=>parseFloat(it.inv)||0.001):[1],backgroundColor:cols.map(c=>c+'aa'),borderColor:cols,borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'58%',plugins:{...CDK.plugins,legend:{labels:{...CDK.plugins.legend.labels,font:{size:9}}}}}});
+  if(!its.length)return;
+  const rv=mkCtx('ch-pbrv');
+  if(rv)CH['ch-pbrv']=new Chart(rv,{type:'bar',data:{labels:its.map(it=>(it.name||'—').slice(0,12)+'…'),datasets:[{label:'Reçus (€)',data:its.map(it=>parseFloat(it.recv)||0),backgroundColor:'rgba(0,200,150,0.6)',borderRadius:4},{label:'Attendus (€)',data:its.map(it=>revExp(it.inv,it.rate,it.dur)),backgroundColor:'rgba(167,139,250,0.4)',borderRadius:4}]},options:{...CDK,scales:{x:GS(),y:GS()}}});
+  const cnt={'En cours':0,'Remboursé':0,'En retard':0};
+  its.forEach(it=>cnt[it.status||'En cours']=(cnt[it.status||'En cours']||0)+1);
+  const st=mkCtx('ch-pbst');
+  if(st)CH['ch-pbst']=new Chart(st,{type:'doughnut',data:{labels:Object.keys(cnt),datasets:[{data:Object.values(cnt),backgroundColor:['rgba(251,191,36,0.65)','rgba(0,200,150,0.65)','rgba(255,69,96,0.65)'],borderColor:['#fbbf24','#00c896','#ff4560'],borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'55%'}});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECOURS / FOND CHARTS
+═══════════════════════════════════════════════════════════ */
+function scCh(items,total,goal){
+  const cols=['#34d399','#10b981','#059669','#6ee7b7','#a7f3d0'].slice(0,Math.max(items.length,1));
+  const pc=mkCtx('ch-scpie');
+  if(pc)CH['ch-scpie']=new Chart(pc,{type:'doughnut',data:{labels:items.length?items.map(it=>it.name||'Compte'):['Aucun'],datasets:[{data:items.length?items.map(it=>parseFloat(it.bal)||0.001):[1],backgroundColor:cols.map(c=>c+'aa'),borderColor:cols,borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'60%'}});
+  const gc=mkCtx('ch-scgoal');if(gc)gaugeChart(gc,goal>0?Math.min(100,total/goal*100):0,'#34d399');
+}
+function fdCh(items,total,goal){
+  const cols=['#f472b6','#ec4899','#db2777','#f9a8d4','#fbcfe8'].slice(0,Math.max(items.length,1));
+  const pc=mkCtx('ch-fdpie');
+  if(pc)CH['ch-fdpie']=new Chart(pc,{type:'doughnut',data:{labels:items.length?items.map(it=>it.name||'Poste'):['Aucun'],datasets:[{data:items.length?items.map(it=>parseFloat(it.amt)||0.001):[1],backgroundColor:cols.map(c=>c+'aa'),borderColor:cols,borderWidth:2,hoverOffset:6}]},options:{...CDK,cutout:'60%'}});
+  const gc=mkCtx('ch-fdgoal');if(gc)gaugeChart(gc,goal>0?Math.min(100,total/goal*100):0,'#f472b6');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════════════ */
+const TABS=['overview','briks','pbrique','ibkr','binance','secours','fond'];
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById('sec-'+id);if(sec)sec.classList.add('active');
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',TABS[i]===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='overview')renderOverview();
+  else if(id==='briks'){
+    renderBriks();
+    const e=document.getElementById('briks-liq-inp');if(e&&document.activeElement!==e)e.value=S.liq?.briks||'';
+    const c=document.getElementById('briks-liq-cur');if(c)c.value=S.liqCur?.briks||'EUR';
+  }else if(id==='pbrique'){
+    renderPbrique();
+    const e=document.getElementById('pbrique-liq-inp');if(e&&document.activeElement!==e)e.value=S.liq?.pbrique||'';
+    const c=document.getElementById('pbrique-liq-cur');if(c)c.value=S.liqCur?.pbrique||'EUR';
+  }else if(id==='ibkr')renderIbkr();
+  else if(id==='binance')renderBinance();
+  else if(id==='secours'){renderSecours();const e=document.getElementById('sc-goal-inp');if(e&&S.secoursGoal)e.value=S.secoursGoal;}
+  else if(id==='fond'){renderFond();const e=document.getElementById('fd-goal-inp');if(e&&S.fondGoal)e.value=S.fondGoal;}
+  // sync sub-rate UI
+  if(['briks','pbrique','ibkr','binance'].includes(id)){
+    const v=S.subRates?.[id];
+    if(v!=null){
+      const rr=document.getElementById(id+'-rr');const ri=document.getElementById(id+'-ri');const rd=document.getElementById(id+'-rd');
+      if(rr)rr.value=Math.min(id==='binance'?50:30,v);
+      if(ri)ri.value=v;
+      if(rd)rd.textContent=parseFloat(v).toFixed(1)+'%';
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+function toast(msg,dur=3500){
+  const ex=document.getElementById('_toast');if(ex)ex.remove();
+  const t=document.createElement('div');t.id='_toast';
+  t.style.cssText='position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(16px);background:#0d1117;border:1px solid rgba(0,212,255,.18);color:#e2eaf5;padding:11px 22px;border-radius:12px;font-size:12px;font-weight:600;z-index:10000;box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:88vw;text-align:center;font-family:Space Grotesk,system-ui;opacity:0;transition:all .22s ease;white-space:nowrap';
+  t.textContent=msg;document.body.appendChild(t);
+  requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';});
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(8px)';setTimeout(()=>{if(t.parentNode)t.remove();},250);},dur);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════════════════════ */
+function confetti(){
+  if(!document.getElementById('_csstyle')){const s=document.createElement('style');s.id='_csstyle';s.textContent='@keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}';document.head.appendChild(s);}
+  const cols=['#00d4ff','#8b5cf6','#00c896','#f59e0b','#ff4560','#f472b6','#fbbf24'];
+  for(let i=0;i<80;i++){
+    setTimeout(()=>{
+      const d=document.createElement('div');const sz=5+Math.random()*7;
+      d.style.cssText=`position:fixed;top:-10px;left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};background:${cols[Math.floor(Math.random()*cols.length)]};z-index:9999;pointer-events:none;animation:fall ${1.5+Math.random()*2}s linear forwards`;
+      document.body.appendChild(d);setTimeout(()=>{if(d.parentNode)d.remove();},4000);
+    },i*25);
+  }
+}
+const MILESTONES=[1000,5000,10000,25000,50000,100000,250000,500000,1000000];
+function checkMilestones(){
+  const{cur}=cAll();const reached=MILESTONES.filter(m=>cur>=m);
+  if(!reached.length)return;const top=reached[reached.length-1];
+  if(top>(S._milestone||0)){S._milestone=top;save();setTimeout(()=>{confetti();toast('🎉 Cap des '+top.toLocaleString('fr-FR')+' € franchi !',5500);},600);}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   QUOTES
+═══════════════════════════════════════════════════════════ */
+const QS=['💡 "L\'argent planté aujourd\'hui est l\'arbre de demain."','🔥 "Le meilleur moment d\'investir c\'était hier. Le 2e, c\'est maintenant."','⚡ "Chaque euro investi est un employé 24h/24."','🚀 "Les intérêts composés, 8e merveille du monde." — Einstein','🎯 "La discipline d\'aujourd\'hui est la liberté de demain."','🏆 "Ce n\'est pas ce que tu gagnes qui compte — c\'est ce que tu fais travailler."'];
+function newQuote(){const el=document.getElementById('quote-mini');if(el)el.textContent=QS[Math.floor(Math.random()*QS.length)];}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT — CHARGE LES DONNÉES JSON
+═══════════════════════════════════════════════════════════ */
+const DEFAULT_DATA={
+  "briks":[{"name":"Villa Terres Blanches Tourrettes","inv":"100","rate":"11","dur":"24","recv":"9.74","status":"En cours","date":"2025-04-26","notes":""},{"name":"Golféa Bordeaux/Mérignac - Tranche I","inv":"100","rate":"11","dur":"24","recv":"9.22","status":"En cours","date":"2025-05-06","notes":""},{"name":"Gite Ardennes françaises","inv":"100","rate":"10","dur":"36","recv":"8.41","status":"En cours","date":"2025-05-17","notes":""},{"name":"Maison Collonges-au-Mont-d'Or","inv":"100","rate":"10","dur":"18","recv":"8.02","status":"En cours","date":"2025-05-31","notes":""},{"name":"Ensemble commercial Parc Pyrénées","inv":"49.87","rate":"9","dur":"12","recv":"4.50","status":"En cours","date":"2025-07-18","notes":""},{"name":"Immeuble Henri Martin Vanves","inv":"110","rate":"9","dur":"12","recv":"5.39","status":"En cours","date":"2025-08-25","notes":""},{"name":"Terre de Lis","inv":"100","rate":"9","dur":"24","recv":"4.22","status":"En cours","date":"2025-09-29","notes":""},{"name":"Grand Hôtel Médicis La Bourboule","inv":"110","rate":"10","dur":"24","recv":"5.16","status":"En cours","date":"2025-10-09","notes":""},{"name":"Liberty Plaza Luxembourg-Ville","inv":"110","rate":"9","dur":"24","recv":"3.24","status":"En cours","date":"2025-11-10","notes":""},{"name":"Ensemble Immobilier Saint-Fargeau-Ponthierry","inv":"110","rate":"9.50","dur":"18","recv":"3.16","status":"En cours","date":"2025-12-10","notes":""},{"name":"Immeuble Georges Clemenceau Bordeaux","inv":"40","rate":"9","dur":"8","recv":"0.59","status":"En cours","date":"2026-02-06","notes":""},{"name":"3 biens Hérault et Corse du Sud","inv":"10","rate":"8","dur":"24","recv":"0","status":"En cours","date":"2026-04-13","notes":""},{"name":"Immeubles Denormandie suite","inv":"10","rate":"9","dur":"24","recv":"0","status":"En cours","date":"2026-04-19","notes":""}],
+  "pbrique":[{"name":"Le Bédouin","inv":"100","rate":"11.25","dur":"22","recv":"0","status":"En cours","date":"2025-06-02","notes":""},{"name":"Le Berlingo","inv":"100","rate":"11.50","dur":"22","recv":"0","status":"En cours","date":"2025-06-09","notes":""},{"name":"Le Maverick","inv":"100","rate":"11.25","dur":"5","recv":"4.69","status":"En cours","date":"2025-07-06","notes":""},{"name":"La Julia","inv":"100","rate":"11.50","dur":"18","recv":"0","status":"En cours","date":"2025-08-21","notes":""},{"name":"Le Prestige","inv":"100","rate":"11.50","dur":"22","recv":"0","status":"En cours","date":"2025-09-02","notes":""},{"name":"Le Corbusier","inv":"88.64","rate":"12","dur":"20","recv":"6","status":"En cours","date":"2025-10-04","notes":""},{"name":"Solde le Corbusier","inv":"17.36","rate":"","dur":"","recv":"","status":"En cours","date":"","notes":""},{"name":"La Riviera","inv":"100","rate":"11","dur":"22","recv":"3.67","status":"En cours","date":"2025-11-04","notes":""},{"name":"Le Kataru","inv":"100","rate":"13","dur":"24","recv":"0","status":"En cours","date":"2025-12-12","notes":""},{"name":"Le Sainte Marguerite","inv":"105","rate":"11.50","dur":"30","recv":"0","status":"En cours","date":"2026-01-07","notes":""}],
+  "ibkr":[{"tick":"AI","fullname":"Air Liquide SA","qty":"186","entry":"179.68","current":"186.22","pnl":"25.3","dayvar":"-0.09","currency":"EUR","date":""},{"tick":"AIAG","fullname":"L&G Artificial Intelligence ETF","qty":"115","entry":"2249.73","current":"2269.50","pnl":"6.06","dayvar":"1.23","currency":"EUR","date":""},{"tick":"NVDA","fullname":"NVIDIA Corp","qty":"201","entry":"199.77","current":"200.98","pnl":"5.62","dayvar":"1.33","currency":"USD","date":""},{"tick":"QUBT","fullname":"Quantum Computing Inc","qty":"95","entry":"9.94","current":"9.51","pnl":"-56.9","dayvar":"0.69","currency":"USD","date":""},{"tick":"ORCL","fullname":"Oracle Corp","qty":"175","entry":"174.33","current":"174.60","pnl":"-118","dayvar":"-2.10","currency":"USD","date":""}],
+  "binance":[{"sym":"BTC","fullname":"Bitcoin","qty":"0.00474564","curval":"354.81","gpday":"-3.94","gpdaypct":"-1.10","entry":"98770.87","type":"Spot","date":""},{"sym":"ETH","fullname":"Ethereum","qty":"0.0636585","curval":"146.13","gpday":"-3.2","gpdaypct":"-2.14","entry":"3684.87","type":"Spot","date":""},{"sym":"SOL","fullname":"Solana","qty":"1.62283565","curval":"138.12","gpday":"-1.43","gpdaypct":"-1.02","entry":"173.92","type":"Spot","date":""},{"sym":"TAO","fullname":"Bittensor","qty":"0.38594798","curval":"92.7","gpday":"-1.2","gpdaypct":"-1.27","entry":"336.92","type":"Spot","date":""},{"sym":"STX","fullname":"Stacks","qty":"389.79551327","curval":"87.16","gpday":"-2.65","gpdaypct":"-2.94","entry":"0.44749608","type":"Spot","date":""},{"sym":"XRP","fullname":"XRP","qty":"19.99506542","curval":"28.29","gpday":"-0.3","gpdaypct":"-1.05","entry":"2.24","type":"Spot","date":""},{"sym":"BNB","fullname":"BNB","qty":"0.02484516","curval":"15.43","gpday":"-0.2","gpdaypct":"-1.29","entry":"961.94","type":"Spot","date":""},{"sym":"SXT","fullname":"Space and Time","qty":"16.52747099","curval":"0.28","gpday":"0.01","gpdaypct":"2.62","entry":"0","type":"Spot","date":""},{"sym":"STX2","fullname":"Stacks (Spot séparé)","qty":"198.4","curval":"44.36","gpday":"-1.45","gpdaypct":"-3.16","entry":"0.44760172","type":"Spot","date":""}],
+  "secours":[],"fond":[],"secoursGoal":0,"fondGoal":0,"history":[],
+  "liq":{"ibkr":0,"binance":0.27,"briks":0,"pbrique":0},
+  "liqCur":{"ibkr":"CHF","binance":"USDT","briks":"EUR","pbrique":"EUR"},
+  "ibkrCapital":564,"ibkrCapitalCur":"CHF","bnUsdtChf":0.98,
+  "subRates":{"briks":7,"pbrique":9,"ibkr":10,"binance":15},"globalRate":8
+};
+
+load();
+// Si pas de données locales, charge les données par défaut
+if(!S.briks.length&&!S.ibkr.length&&!S.binance.length){
+  S={...S,...DEFAULT_DATA};
+  save();
+}
+
+// Init
+const hd=document.getElementById('h-date');if(hd)hd.value=new Date().toISOString().split('T')[0];
+renderOverview();
+newQuote();
+checkMilestones();
+setInterval(newQuote,30000);
+
+// fix canvas resize on orientation change
+window.addEventListener('resize',()=>{
+  Object.values(CH).forEach(ch=>{try{ch.resize();}catch(e){}});
+});
+</script>
+</body>
+</html>
