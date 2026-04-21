@@ -1,0 +1,16 @@
+{
+  "name": "Patrimoine v7",
+  "short_name": "Patrimoine",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#04060a",
+  "theme_color": "#04060a",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
