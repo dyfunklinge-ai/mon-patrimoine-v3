@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgRad" cx="30%" cy="20%" r="120%">
+      <stop offset="0%" stop-color="#0a0a0d"/>
+      <stop offset="60%" stop-color="#000000"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5cf5e8"/>
+      <stop offset="55%" stop-color="#4af4e8"/>
+      <stop offset="100%" stop-color="#9b7af0"/>
+    </linearGradient>
+
+    <linearGradient id="depthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="dotGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="ambient" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <!-- FOND -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#bgRad)"/>
+
+  <!-- Halos lumineux ambiants -->
+  <circle cx="380" cy="130" r="120" fill="#4af4e8" opacity="0.15" filter="url(#ambient)"/>
+  <circle cx="160" cy="380" r="100" fill="#9b7af0" opacity="0.10" filter="url(#ambient)"/>
+
+  <!-- Bordure interne subtile -->
+  <rect x="0.5" y="0.5" width="511" height="511" rx="111.5" ry="111.5"
+        fill="none" stroke="#ffffff" stroke-width="1" opacity="0.06"/>
+
+  <!-- MONOGRAMME P EN BLOCS -->
+  <g transform="translate(150, 110)">
+    <!-- Barre verticale (3 blocs empilés) -->
+    <rect x="0" y="200" width="60" height="92" rx="10" ry="10" fill="url(#mainGrad)"/>
+    <rect x="0" y="200" width="60" height="92" rx="10" ry="10" fill="url(#depthGrad)"/>
+
+    <rect x="0" y="100" width="60" height="92" rx="10" ry="10" fill="url(#mainGrad)" opacity="0.92"/>
+    <rect x="0" y="100" width="60" height="92" rx="10" ry="10" fill="url(#depthGrad)"/>
+
+    <rect x="0" y="0" width="60" height="92" rx="10" ry="10" fill="url(#mainGrad)" opacity="0.85"/>
+    <rect x="0" y="0" width="60" height="92" rx="10" ry="10" fill="url(#depthGrad)"/>
+
+    <!-- Boucle du P (2 blocs) -->
+    <rect x="68" y="0" width="140" height="92" rx="10" ry="10" fill="url(#mainGrad)" opacity="0.90"/>
+    <rect x="68" y="0" width="140" height="92" rx="10" ry="10" fill="url(#depthGrad)"/>
+
+    <rect x="68" y="100" width="140" height="92" rx="10" ry="10" fill="url(#mainGrad)" opacity="0.95"/>
+    <rect x="68" y="100" width="140" height="92" rx="10" ry="10" fill="url(#depthGrad)"/>
+
+    <!-- Trou central du P -->
+    <rect x="92" y="32" width="92" height="128" rx="14" ry="14" fill="#000000"/>
+    <rect x="92" y="32" width="92" height="128" rx="14" ry="14"
+          fill="none" stroke="url(#mainGrad)" stroke-width="1" opacity="0.3"/>
+
+    <!-- Lignes de construction entre blocs -->
+    <line x1="2" y1="96" x2="58" y2="96" stroke="#000" stroke-width="2" opacity="0.4"/>
+    <line x1="2" y1="196" x2="58" y2="196" stroke="#000" stroke-width="2" opacity="0.4"/>
+    <line x1="70" y1="96" x2="206" y2="96" stroke="#000" stroke-width="2" opacity="0.4"/>
+
+    <!-- Highlights supérieurs -->
+    <rect x="0" y="0" width="60" height="3" rx="1.5" fill="#ffffff" opacity="0.25"/>
+    <rect x="68" y="0" width="140" height="3" rx="1.5" fill="#ffffff" opacity="0.25"/>
+  </g>
+
+  <!-- POINT SIGNATURE -->
+  <g filter="url(#dotGlow)">
+    <circle cx="408" cy="104" r="14" fill="#5cf5e8"/>
+    <circle cx="408" cy="104" r="6" fill="#ffffff"/>
+  </g>
+</svg>
