@@ -1,0 +1,341 @@
+.confirm-progress{font-size:9.5px;color:var(--text3);font-family:var(--mono);text-align:center;margin-bottom:14px;letter-spacing:1px}
+.sell-modal{background:linear-gradient(180deg,rgba(15,19,32,.98),rgba(8,11,20,.98));border:1px solid rgba(61,220,151,.35);border-radius:var(--r3);box-shadow:var(--sh-lg),0 0 40px -10px rgba(61,220,151,.3);padding:24px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(8px) scale(.98);transition:transform var(--t) var(--ease)}
+.confirm-modal-bg.open .sell-modal{transform:translateY(0) scale(1)}
+.sell-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.sell-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(61,220,151,.2),rgba(16,185,129,.1));border:1px solid rgba(61,220,151,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sell-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.sell-subtitle{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px}
+.sell-info-grid{background:rgba(74,244,232,.04);border:1px solid rgba(74,244,232,.15);border-radius:var(--r2);padding:12px 14px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sell-info-row{display:flex;flex-direction:column;gap:2px}
+.sell-info-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-family:var(--mono)}
+.sell-info-val{font-size:13px;font-weight:700;color:var(--text);font-family:var(--mono)}
+.sell-fields{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.sell-field{display:flex;flex-direction:column;gap:5px}
+.sell-field label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text3);font-family:var(--mono)}
+.sell-field-input{display:flex;align-items:center;background:rgba(11,14,23,.7);border:1.5px solid var(--border2);border-radius:var(--r2);transition:border-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+.sell-field-input:focus-within{border-color:rgba(61,220,151,.5);box-shadow:0 0 0 3px rgba(61,220,151,.1)}
+.sell-field-input input{flex:1;background:transparent;border:none;padding:11px 14px;color:var(--text);font-size:14px;font-weight:700;font-family:var(--mono);outline:0}
+.sell-field-input .sell-unit{padding:0 14px;font-size:11px;font-weight:700;color:var(--green);font-family:var(--mono);border-left:1px solid var(--border2);background:rgba(61,220,151,.05);height:100%;display:flex;align-items:center;border-radius:0 var(--r2) var(--r2) 0}
+.sell-field-hint{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;display:flex;justify-content:space-between}
+.sell-field-hint .quick-fill{color:var(--cyan);cursor:pointer;text-decoration:underline;font-weight:600}
+.sell-field-hint .quick-fill:hover{color:var(--green)}
+.sell-summary{background:linear-gradient(135deg,rgba(61,220,151,.08),rgba(16,185,129,.04));border:1px solid rgba(61,220,151,.25);border-radius:var(--r2);padding:14px;margin-bottom:16px}
+.sell-summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.sell-summary-row+.sell-summary-row{border-top:1px dashed rgba(255,255,255,.06)}
+.sell-summary-lbl{color:var(--text2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.sell-summary-val{font-weight:700;font-family:var(--mono);font-size:13px}
+.sell-summary-final{margin-top:6px;padding-top:10px;border-top:2px solid rgba(61,220,151,.3)!important}
+.sell-summary-final .sell-summary-lbl{color:var(--green);font-size:11px;font-weight:700}
+.sell-summary-final .sell-summary-val{font-size:18px;color:var(--green);font-weight:800}
+.sell-pnl-preview{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;margin-top:10px;font-size:11px;font-family:var(--mono)}
+.sell-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sell-btn{padding:12px 14px;border-radius:var(--r2);border:1px solid var(--border);background:transparent;color:var(--text);font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;transition:all var(--t-fast) var(--ease)}
+.sell-btn:hover{transform:translateY(-1px)}
+.sell-btn-cancel{color:var(--text3)}
+.sell-btn-confirm{background:linear-gradient(135deg,#3ddc97,#10b981);border-color:transparent;color:#04060a;grid-column:1/-1}
+.sell-btn-confirm:hover{box-shadow:0 6px 20px -4px rgba(61,220,151,.5)}
+.sell-btn-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.sell-warning{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.25);border-radius:var(--r2);padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--amber);font-family:var(--mono);display:flex;align-items:center;gap:8px}
+@media screen and (max-width:480px){.sell-info-grid{grid-template-columns:1fr}.sell-modal{padding:18px}}
+<div class="confirm-modal-bg" id="confirm-modal-bg"><div class="confirm-modal" id="confirm-modal-body"></div></div>
+<div class="confirm-modal-bg" id="sell-modal-bg"><div class="sell-modal" id="sell-modal-body"></div></div>
+
+<script>
+const sellModal = {
+  ctx: null,
+
+  open(platform, idx) {
+    const item = S[platform]?.[idx];
+    if (!item) return;
+
+    let qty, entry, currentPrice, currency, name, fullname;
+    if (platform === 'ibkr') {
+      qty = parseFloat(item.qty) || 0;
+      entry = parseFloat(item.entry) || 0;
+      currentPrice = parseFloat(item.current) || 0;
+      currency = item.currency || 'CHF';
+      name = item.tick || '—';
+      fullname = item.fullname || '';
+    } else {
+      qty = parseFloat(item.qty) || 0;
+      entry = parseFloat(item.entry) || 0;
+      currentPrice = parseFloat(item.currentprice) || 0;
+      currency = 'USDT';
+      name = item.sym || '—';
+      fullname = item.fullname || '';
+    }
+
+    if (qty <= 0) {
+      toast('⚠️ Quantité invalide');
+      return;
+    }
+
+    this.ctx = { platform, idx, item, qty, entry, currentPrice, currency, name, fullname };
+    this.render();
+    document.getElementById('sell-modal-bg').classList.add('open');
+
+    setTimeout(() => {
+      const qtyInput = document.getElementById('sell-qty');
+      if (qtyInput) qtyInput.focus();
+    }, 100);
+  },
+
+  close() {
+    document.getElementById('sell-modal-bg').classList.remove('open');
+    this.ctx = null;
+  },
+
+  render() {
+    const c = this.ctx;
+    if (!c) return;
+
+    const isGBX = c.currency === 'GBX';
+    const displayCur = isGBX ? 'GBP' : c.currency;
+    const priceDisplay = isGBX ? (c.currentPrice / 100).toFixed(4) : c.currentPrice.toFixed(4);
+    const entryDisplay = isGBX ? (c.entry / 100).toFixed(4) : c.entry.toFixed(4);
+
+    const html = `
+      <div class="sell-header">
+        <div class="sell-icon">💰</div>
+        <div style="flex:1;min-width:0">
+          <div class="sell-title">Vendre ${esc(c.name)}</div>
+          <div class="sell-subtitle">${esc(c.fullname || c.platform.toUpperCase())}</div>
+        </div>
+      </div>
+
+      <div class="sell-info-grid">
+        <div class="sell-info-row">
+          <span class="sell-info-lbl">Quantité détenue</span>
+          <span class="sell-info-val">${c.qty.toLocaleString('fr-FR', { maximumFractionDigits: 8 })}</span>
+        </div>
+        <div class="sell-info-row">
+          <span class="sell-info-lbl">Prix moyen d'achat</span>
+          <span class="sell-info-val">${entryDisplay} ${displayCur}</span>
+        </div>
+        <div class="sell-info-row">
+          <span class="sell-info-lbl">Prix marché actuel</span>
+          <span class="sell-info-val" style="color:var(--cyan)">${priceDisplay} ${displayCur}</span>
+        </div>
+        <div class="sell-info-row">
+          <span class="sell-info-lbl">Devise</span>
+          <span class="sell-info-val">${c.currency}</span>
+        </div>
+      </div>
+
+      <div class="sell-fields">
+        <div class="sell-field">
+          <label>📦 Quantité vendue</label>
+          <div class="sell-field-input">
+            <input type="number" id="sell-qty" value="${c.qty}" step="any" min="0" max="${c.qty}" oninput="sellModal.recalc()">
+            <span class="sell-unit">parts</span>
+          </div>
+          <div class="sell-field-hint">
+            <span>Max : ${c.qty.toLocaleString('fr-FR', { maximumFractionDigits: 8 })}</span>
+            <span class="quick-fill" onclick="sellModal.fillQty('all')">Tout vendre</span>
+          </div>
+        </div>
+
+        <div class="sell-field">
+          <label>💵 Prix de vente réel ${isGBX ? '(en GBX = pence)' : ''}</label>
+          <div class="sell-field-input">
+            <input type="number" id="sell-price" value="${c.currentPrice.toFixed(c.currentPrice < 1 ? 6 : 4)}" step="any" min="0" oninput="sellModal.recalc()">
+            <span class="sell-unit">${c.currency}</span>
+          </div>
+          <div class="sell-field-hint">
+            <span>Prix marché : ${priceDisplay} ${displayCur}</span>
+            <span class="quick-fill" onclick="sellModal.fillPrice('market')">Prix marché</span>
+          </div>
+        </div>
+
+        <div class="sell-field">
+          <label>💸 Frais de clôture</label>
+          <div class="sell-field-input">
+            <input type="number" id="sell-fees" value="${parseFloat(c.item.feesClose) || 0}" step="any" min="0" oninput="sellModal.recalc()">
+            <span class="sell-unit">${c.currency}</span>
+          </div>
+          <div class="sell-field-hint">
+            <span>Commission de vente</span>
+            <span class="quick-fill" onclick="sellModal.fillFees(0)">Sans frais</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="sell-summary-zone"></div>
+
+      <div class="sell-actions">
+        <button class="sell-btn sell-btn-cancel" onclick="sellModal.close()">✕ Annuler</button>
+        <button class="sell-btn sell-btn-confirm" id="sell-confirm-btn" onclick="sellModal.confirm()">
+          ✅ Confirmer la vente
+        </button>
+      </div>
+    `;
+
+    document.getElementById('sell-modal-body').innerHTML = html;
+    this.recalc();
+  },
+
+  fillQty(mode) {
+    const input = document.getElementById('sell-qty');
+    if (!input) return;
+    if (mode === 'all') input.value = this.ctx.qty;
+    this.recalc();
+  },
+
+  fillPrice(mode) {
+    const input = document.getElementById('sell-price');
+    if (!input) return;
+    if (mode === 'market') input.value = this.ctx.currentPrice.toFixed(this.ctx.currentPrice < 1 ? 6 : 4);
+    this.recalc();
+  },
+
+  fillFees(val) {
+    const input = document.getElementById('sell-fees');
+    if (!input) return;
+    input.value = val;
+    this.recalc();
+  },
+
+  recalc() {
+    const c = this.ctx;
+    if (!c) return;
+
+    const qty = parseFloat(document.getElementById('sell-qty')?.value) || 0;
+    const price = parseFloat(document.getElementById('sell-price')?.value) || 0;
+    const fees = parseFloat(document.getElementById('sell-fees')?.value) || 0;
+
+    const isGBX = c.currency === 'GBX';
+    const displayCur = isGBX ? 'GBP' : c.currency;
+
+    const grossAmount = qty * price;
+    const netAmount = grossAmount - fees;
+    const costBasis = qty * c.entry;
+    const grossPnl = grossAmount - costBasis;
+    const netPnl = netAmount - costBasis;
+    const pnlPct = costBasis > 0 ? (netPnl / costBasis) * 100 : 0;
+    const pnlColor = netPnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+    const isPartial = qty < c.qty - 0.0000001;
+    const isInvalid = qty <= 0 || qty > c.qty + 0.0000001 || price <= 0;
+
+    let warningHtml = '';
+    if (qty > c.qty + 0.0000001) {
+      warningHtml = `<div class="sell-warning">⚠️ Quantité supérieure à ce que tu détiens (${c.qty})</div>`;
+    } else if (isPartial) {
+      const remaining = c.qty - qty;
+      warningHtml = `<div class="sell-warning" style="background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.25);color:var(--sky)">📊 Vente partielle : ${remaining.toLocaleString('fr-FR', { maximumFractionDigits: 8 })} parts resteront en portefeuille</div>`;
+    }
+
+    const summaryHtml = `
+      ${warningHtml}
+      <div class="sell-summary">
+        <div class="sell-summary-row">
+          <span class="sell-summary-lbl">Montant brut</span>
+          <span class="sell-summary-val" style="color:var(--text)">${N(isGBX ? grossAmount / 100 : grossAmount, 2)} ${displayCur}</span>
+        </div>
+        <div class="sell-summary-row">
+          <span class="sell-summary-lbl">Frais de clôture</span>
+          <span class="sell-summary-val" style="color:var(--amber)">−${N(isGBX ? fees / 100 : fees, 2)} ${displayCur}</span>
+        </div>
+        <div class="sell-summary-row">
+          <span class="sell-summary-lbl">Coût d'achat</span>
+          <span class="sell-summary-val" style="color:var(--text2)">${N(isGBX ? costBasis / 100 : costBasis, 2)} ${displayCur}</span>
+        </div>
+        <div class="sell-summary-row">
+          <span class="sell-summary-lbl">PNL net réalisé</span>
+          <span class="sell-summary-val" style="color:${pnlColor}">${sgn(netPnl)}${N(Math.abs(isGBX ? netPnl / 100 : netPnl), 2)} ${displayCur} (${sgn(pnlPct)}${pnlPct.toFixed(2)}%)</span>
+        </div>
+        <div class="sell-summary-row sell-summary-final">
+          <span class="sell-summary-lbl">💰 Crédit liquidité</span>
+          <span class="sell-summary-val">${N(isGBX ? netAmount / 100 : netAmount, 2)} ${displayCur}</span>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('sell-summary-zone').innerHTML = summaryHtml;
+
+    const btn = document.getElementById('sell-confirm-btn');
+    if (btn) {
+      btn.disabled = isInvalid;
+      if (isPartial && !isInvalid) {
+        btn.textContent = `✅ Vendre ${qty.toLocaleString('fr-FR', { maximumFractionDigits: 8 })} parts`;
+      } else if (!isInvalid) {
+        btn.textContent = `✅ Vendre tout (${N(isGBX ? netAmount / 100 : netAmount, 2)} ${displayCur} net)`;
+      } else {
+        btn.textContent = '⚠️ Saisie invalide';
+      }
+    }
+  },
+
+  confirm() {
+    const c = this.ctx;
+    if (!c) return;
+
+    const qty = parseFloat(document.getElementById('sell-qty')?.value) || 0;
+    const price = parseFloat(document.getElementById('sell-price')?.value) || 0;
+    const fees = parseFloat(document.getElementById('sell-fees')?.value) || 0;
+
+    if (qty <= 0 || qty > c.qty + 0.0000001 || price <= 0) {
+      toast('⚠️ Saisie invalide');
+      return;
+    }
+
+    const grossAmount = qty * price;
+    const netAmount = grossAmount - fees;
+    const isPartial = qty < c.qty - 0.0000001;
+    const liqKey = c.platform === 'ibkr' ? 'ibkr' : 'binance';
+
+    S.liq = S.liq || {};
+    if (S.liq[liqKey] == null) S.liq[liqKey] = 0;
+    S.liq[liqKey] = (parseFloat(S.liq[liqKey]) || 0) + netAmount;
+
+    const totalFeesAdded = (parseFloat(c.item.feesClose) || 0);
+    const newFeesClose = totalFeesAdded + (fees - totalFeesAdded);
+
+    if (isPartial) {
+      const remainingQty = c.qty - qty;
+      c.item.qty = remainingQty.toString();
+
+      if (c.platform === 'ibkr') {
+        const currentMarket = parseFloat(c.item.current) || price;
+        c.item.pnl = (remainingQty * (currentMarket - c.entry)).toString();
+      } else {
+        const currentMarket = parseFloat(c.item.currentprice) || price;
+        c.item.curval = (remainingQty * currentMarket).toString();
+        c.item.gpval = (remainingQty * (currentMarket - c.entry)).toString();
+      }
+
+      const feeRatio = remainingQty / c.qty;
+      const originalOpenFees = parseFloat(c.item.feesOpen) || 0;
+      c.item.feesOpen = (originalOpenFees * feeRatio).toString();
+      c.item.feesClose = '0';
+
+      save();
+      toast(`✅ Vente partielle de ${c.name} — ${N(c.currency === 'GBX' ? netAmount / 100 : netAmount, 2)} ${c.currency === 'GBX' ? 'GBP' : c.currency} → liquidité`);
+    } else {
+      S[c.platform].splice(c.idx, 1);
+      save();
+      toast(`✅ Vente totale de ${c.name} — ${N(c.currency === 'GBX' ? netAmount / 100 : netAmount, 2)} ${c.currency === 'GBX' ? 'GBP' : c.currency} (net) → liquidité`);
+    }
+
+    this.close();
+
+    if (c.platform === 'ibkr') {
+      renderIbkr();
+    } else {
+      renderBinance();
+    }
+    renderOverview();
+
+    if (typeof liveSync !== 'undefined' && liveSync.enabled) {
+      liveSync.refresh();
+    }
+  }
+};
+
+document.getElementById('sell-modal-bg').addEventListener('click', e => {
+  if (e.target.id === 'sell-modal-bg') sellModal.close();
+});
+
+window.venteIBKR = function(idx) { sellModal.open('ibkr', idx); };
+window.venteBinance = function(idx) { sellModal.open('binance', idx); };
+</script>
