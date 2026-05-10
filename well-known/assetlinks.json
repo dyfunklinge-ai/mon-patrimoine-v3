@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.dyfunklinge_ai.twa",
+    "sha256_cert_fingerprints": ["8F:C7:F7:DE:84:B7:8A:CE:52:B2:E0:DE:41:9C:53:15:9C:4D:47:0C:56:B6:B7:94:5B:EA:64:DA:AF:AA:95:94"]
+  }
+}]
